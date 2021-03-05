@@ -118,7 +118,7 @@
      <string>运行结果 Results</string>
     </property>
    </widget>
-   <widget class="QLabel" name="treeLable">
+   <widget class="QLabel" name="treeLabel">
     <property name="geometry">
      <rect>
       <x>1063</x>
@@ -131,7 +131,7 @@
      <string>语句与语法树</string>
     </property>
    </widget>
-   <widget class="QLabel" name="cmdLable">
+   <widget class="QLabel" name="cmdLabel">
     <property name="geometry">
      <rect>
       <x>33</x>

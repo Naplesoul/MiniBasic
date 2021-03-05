@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include "initialize.h"
-#include "codeeditor.h"
+#include "code.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +15,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    void submitInput();
+    void handleInput();
     ~MainWindow();
 
 protected:
@@ -23,6 +23,10 @@ protected:
 
 private:
     Ui::MainWindow *ui;
-    CodeEditor *codeEditor;
+    Code *code;
+    OPTYPE opType;
+
+    void runCode();
+
 };
 #endif // MAINWINDOW_H

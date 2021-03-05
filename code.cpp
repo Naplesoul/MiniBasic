@@ -142,7 +142,22 @@ Code::Code(QObject *parent) : QObject(parent)
     codeBuffer = new CodeBuffer;
 }
 
-void Code::receiveInput(QString &input)
+void Code::input(QString &input)
+{
+
+}
+
+void Code::load(const QString &filename)
+{
+
+}
+
+void Code::save(const QString &filename) const
+{
+
+}
+
+void Code::clear()
 {
 
 }

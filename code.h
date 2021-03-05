@@ -39,7 +39,10 @@ private:
 
 public:
     explicit Code(QObject *parent = nullptr);
-    void receiveInput(QString &input);
+    void input(QString &input);
+    void load(const QString &filename);
+    void save(const QString &filename) const;
+    void clear();
 
 signals:
 

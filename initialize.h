@@ -1,6 +1,9 @@
 #ifndef INITIALIZE_H
 #define INITIALIZE_H
 
-
+enum OPTYPE
+{
+    INPUT, RUN, LOAD, SAVE, CLEAR
+};
 
 #endif // INITIALIZE_H
