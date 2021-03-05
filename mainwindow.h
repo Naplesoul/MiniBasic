@@ -19,6 +19,7 @@ public:
     ~MainWindow();
 
 protected:
+    // filter shortcut keys: ctrl+L, ctrl+S
     bool eventFilter(QObject *target, QEvent *event);
 
 private:

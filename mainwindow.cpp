@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 }
 
+// filter shortcut keys: ctrl+L, ctrl+S
 bool MainWindow::eventFilter(QObject *target, QEvent *event)
 {
     if(target == ui->inputEdit)
@@ -27,15 +28,15 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                     case (Qt::Key_L):
                         ui->resultBrowser->setText("请输入载入文件的路径");
                         opType = LOAD;
-                        break;
+                        return true;
                     case (Qt::Key_S):
                         ui->resultBrowser->setText("请输入保存文件的路径");
                         opType = SAVE;
-                        break;
+                        return true;
                     case (Qt::Key_R):
                         opType = RUN;
                         runCode();
-                        break;
+                        return true;
                  }
              }
              if(k->key() == Qt::Key_Return)
@@ -72,9 +73,6 @@ void MainWindow::handleInput()
             ui->inputEdit->clear();
             break;
     }
-
-    code->input(input);
-    ui->inputEdit->clear();
 }
 
 void MainWindow::runCode()
