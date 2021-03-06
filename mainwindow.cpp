@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->inputEdit->setFocus();
     ui->inputEdit->installEventFilter(this);
-
 }
 
 // filter shortcut keys: ctrl+L, ctrl+S
@@ -49,6 +48,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
     return false;
 }
 
+// handle cmd input during different states
 void MainWindow::handleInput()
 {
     QString input = ui->inputEdit->toPlainText();
