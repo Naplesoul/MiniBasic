@@ -6,11 +6,19 @@
 #include <QObject>
 #include "initialize.h"
 
+struct Line
+{
+    int rowNum;
+    QString code;
+
+    Line(int n, QString c): rowNum(n), code(c){}
+};
+
 class CodeBuffer
 {
 private:
     int currentLineNum = 0;
-    QList<QString> codeList;
+    QList<Line> codeList;
 
 public:
     CodeBuffer();
@@ -23,7 +31,7 @@ public:
     void showLines(int from, int to);
     int writeToFile(const QString &filename) const;
     void deleteLines(int from, int to);
-    void insertLine(const QString &text);
+    bool insertLine(const Line &text);
     void appendLine(const QString &text);
 
 };
@@ -39,12 +47,15 @@ private:
 
 public:
     explicit Code(QObject *parent = nullptr);
-    void input(QString &input);
-    void load(const QString &filename);
-    void save(const QString &filename) const;
+    bool insert(Line &input);
+    bool load(const QString &filename);
+    bool save(const QString &filename) const;
     void clear();
+    void printCode();
 
 signals:
+    void print(QString);
+    void quit();
 
 };
 

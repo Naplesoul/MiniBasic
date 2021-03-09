@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QtDebug>
 #include "initialize.h"
 #include "code.h"
 
@@ -16,6 +17,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     void handleInput();
+    bool input(QString &input);
+    void updateCodeBrowser();
+    void help();
+    void quit();
     ~MainWindow();
 
 protected:
