@@ -35,6 +35,9 @@
       <height>651</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
+    </property>
    </widget>
    <widget class="QTextBrowser" name="treeBrowser">
     <property name="geometry">
@@ -44,6 +47,9 @@
       <width>321</width>
       <height>651</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="saveButton">
@@ -55,8 +61,11 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 9pt &quot;Noto Sans CJK SC Black&quot;;</string>
+    </property>
     <property name="text">
-     <string>Save</string>
+     <string>SAVE</string>
     </property>
    </widget>
    <widget class="QPlainTextEdit" name="inputEdit">
@@ -68,6 +77,9 @@
       <height>231</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
+    </property>
    </widget>
    <widget class="QPushButton" name="runButton">
     <property name="geometry">
@@ -78,8 +90,11 @@
       <height>81</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 9pt &quot;Noto Sans CJK SC Black&quot;;</string>
+    </property>
     <property name="text">
-     <string>Run</string>
+     <string>RUN</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="codeBrowser">
@@ -91,15 +106,21 @@
       <height>651</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
+    </property>
    </widget>
    <widget class="QLabel" name="codeLabel">
     <property name="geometry">
      <rect>
       <x>30</x>
       <y>5</y>
-      <width>91</width>
+      <width>151</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 10pt &quot;Noto Sans CJK SC Black&quot;;</string>
     </property>
     <property name="text">
      <string>代码 Code</string>
@@ -110,9 +131,12 @@
      <rect>
       <x>643</x>
       <y>-1</y>
-      <width>181</width>
+      <width>221</width>
       <height>51</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 10pt &quot;Noto Sans CJK SC Black&quot;;</string>
     </property>
     <property name="text">
      <string>运行结果 Results</string>
@@ -123,12 +147,15 @@
      <rect>
       <x>1063</x>
       <y>-1</y>
-      <width>171</width>
+      <width>251</width>
       <height>51</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 10pt &quot;Noto Sans CJK SC Black&quot;;</string>
+    </property>
     <property name="text">
-     <string>语句与语法树</string>
+     <string>语句与语法树 Tree</string>
     </property>
    </widget>
    <widget class="QLabel" name="cmdLabel">
@@ -136,12 +163,15 @@
      <rect>
       <x>33</x>
       <y>700</y>
-      <width>121</width>
+      <width>241</width>
       <height>41</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 10pt &quot;Noto Sans CJK SC Black&quot;;</string>
+    </property>
     <property name="text">
-     <string>命令行窗口</string>
+     <string>命令行窗口 Commands</string>
     </property>
    </widget>
    <widget class="QPushButton" name="loadButton">
@@ -153,8 +183,11 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 9pt &quot;Noto Sans CJK SC Black&quot;;</string>
+    </property>
     <property name="text">
-     <string>Load</string>
+     <string>LOAD</string>
     </property>
    </widget>
    <widget class="QPushButton" name="clearButton">
@@ -166,8 +199,11 @@
       <height>41</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">font: 87 9pt &quot;Noto Sans CJK SC Black&quot;;</string>
+    </property>
     <property name="text">
-     <string>Clear</string>
+     <string>CLEAR</string>
     </property>
    </widget>
   </widget>
