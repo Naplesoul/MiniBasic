@@ -52,6 +52,17 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                  ui->inputEdit->clear();
                  return true;
              }
+             if(k->key() == Qt::Key_Escape)
+             {
+                 qDebug() << "[KEY] esc pressed";
+                 if(opType == SAVE || opType == LOAD)
+                 {
+                     opType = INPUT;
+                     ui->resultBrowser->setPlainText("Exit saving/loading mode.\nPlease input command");
+                     return true;
+                 }
+                 return false;
+             }
         }
     }
     return false;
@@ -140,13 +151,13 @@ bool MainWindow::input(QString &input)
     if(cmd == "LOAD")
     {
         opType = LOAD;
-        ui->resultBrowser->setPlainText("Please input file path");
+        ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
         return true;
     }
     if(cmd == "SAVE")
     {
         opType = SAVE;
-        ui->resultBrowser->setPlainText("Please input file path");
+        ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
         return true;
     }
     if(cmd == "CLEAR")
@@ -205,7 +216,7 @@ void MainWindow::updateCodeBrowser()
 
 void MainWindow::help()
 {
-    ui->resultBrowser->setPlainText("Help: ...");
+    ui->resultBrowser->setPlainText("This is help...");
 }
 
 void MainWindow::quit()
@@ -215,18 +226,26 @@ void MainWindow::quit()
 
 void MainWindow::loadFile(QString &filename)
 {
-    if(code->load(filename))
+    switch(code->load(filename))
     {
-        updateCodeBrowser();
-        ui->resultBrowser->setPlainText("File loaded");
-        qDebug() << "[FILE] file loaded";
-        ui->inputEdit->clear();
-        opType = INPUT;
-    }
-    else
-    {
-        ui->resultBrowser->setPlainText("Invaild file path, please revise.\nPress del to clear input");
-        qDebug() << "[INVALID] invaild file path";
+        // normal case
+        case 0:
+            updateCodeBrowser();
+            ui->resultBrowser->setPlainText("File loaded");
+            qDebug() << "[FILE] file loaded";
+            ui->inputEdit->clear();
+            opType = INPUT;
+            break;
+        // unable to open
+        case -1:
+            ui->resultBrowser->setPlainText("Invaild file path, please revise.\nPress del to clear input");
+            qDebug() << "[INVALID] invaild file path";
+            break;
+        // file contains errors
+        case -2:
+            ui->resultBrowser->setPlainText("File contains invaild line numbers.\nPress del to clear input");
+            qDebug() << "[INVALID] invaild lineNum in file";
+            break;
     }
 }
 

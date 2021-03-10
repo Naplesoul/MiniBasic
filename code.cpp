@@ -53,26 +53,6 @@ QString CodeBuffer::printCode()
     return output;
 }
 
-void CodeBuffer::appendLine(const QString &text)
-{
-//    if(currentLineNum == 0)
-//    {
-//        codeList.push_back(text);
-//        currentLineNum = 1;
-//        return;
-//    }
-//    int cln = currentLineNum;
-//    QList<QString>::iterator it = codeList.begin();
-//    while(cln > 1)
-//    {
-//        if(it != codeList.end()) ++it;
-//        --cln;
-//    }
-//    if(it != codeList.end()) ++it;
-//    codeList.insert(it,text);
-//    currentLineNum++;
-}
-
 
 
 void CodeBuffer::clear()
@@ -102,14 +82,65 @@ QString Code::printCode()
     return codeBuffer->printCode();
 }
 
-bool Code::load(const QString &filename)
+// returns 0: normal case
+// -1: unable to open
+// -2: file contains errors
+int Code::load(const QString &filename)
 {
-
+    codeBuffer->clear();
+    std::fstream file(filename.toStdString());
+    if(!file)
+        return -1;
+    std::string line;
+    while(std::getline(file, line))
+    {
+        if(line.empty())
+            continue;
+        QString Qline = QString::fromStdString(line);
+        bool isNumber = false;
+        int numEnd = -1;
+        int len = Qline.size();
+        for(int i = 0; i < len; ++i)
+        {
+            if(i == len - 1)
+            {
+                numEnd = i;
+                break;
+            }
+            if(Qline[i] == ' ')
+            {
+                numEnd = i - 1;
+                break;
+            }
+            if(Qline[i] <= '9' && Qline[i] >= '0')
+                isNumber = true;
+            else
+                isNumber = false;
+        }
+        QString num = Qline.left(numEnd + 1);
+        if(isNumber)
+        {
+            if(numEnd == len - 1)
+                return -2;
+            int lineNum = num.toInt();
+            Line in(lineNum, Qline.mid(numEnd + 2));
+            qDebug() << "[insert]" << lineNum << ',' << in.code;
+            if(!insert(in))
+                return -2;
+        }
+    }
+    file.close();
+    return 0;
 }
 
-bool Code::save(const QString &filename) const
+bool Code::save(const QString &filename)
 {
-
+    std::ofstream file(filename.toStdString());
+    if(!file)
+        return false;
+    file << printCode().toStdString();
+    file.close();
+    return true;
 }
 
 void Code::clear()

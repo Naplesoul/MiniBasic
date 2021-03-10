@@ -28,7 +28,7 @@ public:
 
     bool deleteLine(int lineNum);
     bool insertLine(const Line &text);
-    void appendLine(const QString &text);
+
     QString printCode();
     void clear();
 
@@ -47,8 +47,8 @@ public:
     explicit Code(QObject *parent = nullptr);
     bool insert(Line &input);
     bool del(int lineNum);
-    bool load(const QString &filename);
-    bool save(const QString &filename) const;
+    int load(const QString &filename);
+    bool save(const QString &filename);
     void clear();
     QString printCode();
 
