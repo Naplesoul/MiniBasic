@@ -29,6 +29,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 DISTFILES += \
+    JetBrainsMono-ExtraBold.ttf \
+    NotoSansCJKsc-Black.otf \
+    README.md \
     myapp.rc \
     terminal.ico
 
