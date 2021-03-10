@@ -24,6 +24,9 @@ public:
     void clearCode();
     void loadFile(QString &filename);
     void saveFile(QString &filename);
+    void load();
+    void save();
+    void run();
     ~MainWindow();
 
 protected:
@@ -35,7 +38,7 @@ private:
     Code *code;
     OPTYPE opType;
 
-    void runCode();
+    bool runCode();
 
 signals:
     void quitSignal();

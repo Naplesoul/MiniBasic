@@ -12,6 +12,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->inputEdit->setFocus();
     ui->inputEdit->installEventFilter(this);
     setWindowTitle("MiniBasic");
+    connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::load);
+    connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
+    connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clearCode);
+    connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
 }
 
 // filter shortcut keys: ctrl+L, ctrl+S
@@ -27,16 +31,13 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                  switch(k->key())
                  {
                     case (Qt::Key_L):
-                        ui->resultBrowser->setText("Please input file path");
-                        opType = LOAD;
+                        load();
                         return true;
                     case (Qt::Key_S):
-                        ui->resultBrowser->setText("请输入保存文件的路径");
-                        opType = SAVE;
+                        save();
                         return true;
                     case (Qt::Key_R):
-                        opType = RUN;
-                        runCode();
+                        run();
                         return true;
                  }
              }
@@ -143,21 +144,17 @@ bool MainWindow::input(QString &input)
     }
     if(cmd == "RUN")
     {
-        opType = RUN;
-        runCode();
-        opType = INPUT;
+        run();
         return true;
     }
     if(cmd == "LOAD")
     {
-        opType = LOAD;
-        ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
+        load();
         return true;
     }
     if(cmd == "SAVE")
     {
-        opType = SAVE;
-        ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
+        save();
         return true;
     }
     if(cmd == "CLEAR")
@@ -197,7 +194,15 @@ bool MainWindow::input(QString &input)
     return false;
 }
 
-void MainWindow::runCode()
+void MainWindow::run()
+{
+    opType = RUN;
+    runCode();
+    opType = INPUT;
+    ui->inputEdit->setFocus();
+}
+
+bool MainWindow::runCode()
 {
 
 }
@@ -207,6 +212,7 @@ void MainWindow::clearCode()
     code->clear();
     updateCodeBrowser();
     ui->resultBrowser->setPlainText("Code cleared");
+    ui->inputEdit->setFocus();
 }
 
 void MainWindow::updateCodeBrowser()
@@ -263,6 +269,20 @@ void MainWindow::saveFile(QString &filename)
         ui->resultBrowser->setPlainText("Invaild file path, please revise.\nPress del to clear input");
         qDebug() << "[INVALID] invaild file path";
     }
+}
+
+void MainWindow::load()
+{
+    opType = LOAD;
+    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
+    ui->inputEdit->setFocus();
+}
+
+void MainWindow::save()
+{
+    opType = SAVE;
+    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
+    ui->inputEdit->setFocus();
 }
 
 MainWindow::~MainWindow()
