@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -53,17 +53,17 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                  ui->inputEdit->clear();
                  return true;
              }
-             if(k->key() == Qt::Key_Escape)
-             {
-                 qDebug() << "[KEY] esc pressed";
-                 if(opType == SAVE || opType == LOAD)
-                 {
-                     opType = INPUT;
-                     ui->resultBrowser->setPlainText("Exit saving/loading mode.\nPlease input command");
-                     return true;
-                 }
-                 return false;
-             }
+//             if(k->key() == Qt::Key_Escape)
+//             {
+//                 qDebug() << "[KEY] esc pressed";
+//                 if(opType == SAVE || opType == LOAD)
+//                 {
+//                     opType = INPUT;
+//                     ui->resultBrowser->setPlainText("Exit saving/loading mode.\nPlease input command");
+//                     return true;
+//                 }
+//                 return false;
+//             }
         }
     }
     return false;
@@ -75,12 +75,6 @@ void MainWindow::handleInput()
     QString in = ui->inputEdit->toPlainText();
     switch(opType)
     {
-        case LOAD:
-            loadFile(in);
-            break;
-        case SAVE:
-            saveFile(in);
-            break;
         case RUN:
             ui->resultBrowser->setText("Running now, please wait...");
             break;
@@ -100,6 +94,8 @@ void MainWindow::handleInput()
                 ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
             }
             break;
+        default:
+            return;
     }
 }
 
@@ -172,6 +168,11 @@ bool MainWindow::input(QString &input)
         quit();
         return true;
     }
+    if(cmd == "LIST")
+    {
+        updateCodeBrowser();
+        return true;
+    }
     if(cmd == "DEL")
     {
         int lineNum = input.mid(cmdEnd + 1).toInt();
@@ -238,16 +239,15 @@ void MainWindow::loadFile(QString &filename)
             ui->resultBrowser->setPlainText("File loaded");
             qDebug() << "[FILE] file loaded";
             ui->inputEdit->clear();
-            opType = INPUT;
             break;
         // unable to open
         case -1:
-            ui->resultBrowser->setPlainText("Invaild file path, please revise.\nPress del to clear input");
+            ui->resultBrowser->setPlainText("Invaild file path, please try again");
             qDebug() << "[INVALID] invaild file path";
             break;
         // file contains errors
         case -2:
-            ui->resultBrowser->setPlainText("File contains invaild line numbers.\nPress del to clear input");
+            ui->resultBrowser->setPlainText("File contains invaild line numbers, please revise");
             qDebug() << "[INVALID] invaild lineNum in file";
             break;
     }
@@ -264,7 +264,7 @@ void MainWindow::saveFile(QString &filename)
     }
     else
     {
-        ui->resultBrowser->setPlainText("Invaild file path, please revise.\nPress del to clear input");
+        ui->resultBrowser->setPlainText("Invaild file path, please try again");
         qDebug() << "[INVALID] invaild file path";
     }
 }
@@ -272,14 +272,20 @@ void MainWindow::saveFile(QString &filename)
 void MainWindow::load()
 {
     opType = LOAD;
-    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
+//    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
+    QString filename = QFileDialog::getOpenFileName(this, "choose a file to open");
+    loadFile(filename);
+    opType = INPUT;
     ui->inputEdit->setFocus();
 }
 
 void MainWindow::save()
 {
     opType = SAVE;
-    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
+//    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
+    QString filename = QFileDialog::getSaveFileName(this, "choose a file to save");
+    saveFile(filename);
+    opType = INPUT;
     ui->inputEdit->setFocus();
 }
 
