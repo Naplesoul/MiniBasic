@@ -5,6 +5,7 @@
 #include <QtDebug>
 #include "initialize.h"
 #include "code.h"
+#include "program.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -32,6 +33,7 @@ protected:
 private:
     Ui::MainWindow *ui;
     Code *code;
+    Program *program;
     OPTYPE opType;
 
     bool runCode();
@@ -44,6 +46,7 @@ private:
     void updateCodeBrowser();
 
     void programInput(QString &input);
+    void print(QString &output);
 
 signals:
     void quitSignal();

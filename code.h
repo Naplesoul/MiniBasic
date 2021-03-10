@@ -32,6 +32,7 @@ public:
     QString printCode();
     void clear();
 
+    QList<Line> getCode();
 };
 
 
@@ -51,6 +52,7 @@ public:
     bool save(const QString &filename);
     void clear();
     QString printCode();
+    QList<Line> getCode();
 
 signals:
     void print(QString);

@@ -45,13 +45,13 @@ class ConstantExp: public Expression
 
 public:
 
-   ConstantExp(int val);
+    ConstantExp(int val);
+    ~ConstantExp();
+    virtual int eval(EvaluationContext & context);
+    virtual QString toString();
+    virtual ExpressionType type();
 
-   virtual int eval(EvaluationContext & context);
-   virtual QString toString();
-   virtual ExpressionType type();
-
-   virtual int getConstantValue();
+    virtual int getConstantValue();
 
 private:
 
@@ -66,11 +66,11 @@ public:
 
    IdentifierExp(string name);
 
-   virtual int eval(EvaluationContext & context);
-   virtual QString toString();
-   virtual ExpressionType type();
+    virtual int eval(EvaluationContext & context);
+    virtual QString toString();
+    virtual ExpressionType type();
 
-   virtual QString getIdentifierName();
+    virtual QString getIdentifierName();
 
 private:
 

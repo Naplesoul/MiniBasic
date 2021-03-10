@@ -2,6 +2,9 @@
 #define PROGRAM_H
 
 #include <QObject>
+#include <QList>
+#include "statement.h"
+#include "code.h"
 
 class Program : public QObject
 {
@@ -9,8 +12,12 @@ class Program : public QObject
 public:
     explicit Program(QObject *parent = nullptr);
 
-signals:
+    bool praseStatements(QList<Line> code);
 
+private:
+    QList<Statement> statements;
+signals:
+    void print(QString &output);
 };
 
 #endif // PROGRAM_H

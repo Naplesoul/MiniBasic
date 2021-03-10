@@ -56,7 +56,10 @@ QString CodeBuffer::printCode()
     return output;
 }
 
-
+QList<Line> CodeBuffer::getCode()
+{
+    return codeList;
+}
 
 void CodeBuffer::clear()
 {
@@ -144,6 +147,11 @@ bool Code::save(const QString &filename)
     file << printCode().toStdString();
     file.close();
     return true;
+}
+
+QList<Line> Code::getCode()
+{
+    return codeBuffer->getCode();
 }
 
 void Code::clear()

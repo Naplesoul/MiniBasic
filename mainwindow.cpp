@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , code(new Code(this))
+    , program(new Program(this))
     , opType(INPUT)
 {
     ui->setupUi(this);
@@ -16,6 +17,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clear);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
+
+    connect(program, &Program::print, this, &MainWindow::print);
 }
 
 // filter shortcut keys: ctrl+L, ctrl+S
@@ -199,6 +202,7 @@ bool MainWindow::input(QString &input)
 void MainWindow::run()
 {
     opType = RUN;
+    ui->resultBrowser->clear();
     runCode();
     opType = INPUT;
     ui->inputEdit->setFocus();
@@ -206,7 +210,14 @@ void MainWindow::run()
 
 bool MainWindow::runCode()
 {
+    try
+    {
+        program->praseStatements(code->getCode());
+    }
+    catch(QString)
+    {
 
+    }
 }
 
 void MainWindow::programInput(QString &input)
@@ -295,6 +306,11 @@ void MainWindow::save()
     saveFile(filename);
     opType = INPUT;
     ui->inputEdit->setFocus();
+}
+
+void MainWindow::print(QString &output)
+{
+    ui->resultBrowser->append(output);
 }
 
 void MainWindow::clear()
