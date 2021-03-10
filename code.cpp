@@ -22,7 +22,10 @@ bool CodeBuffer::insertLine(const Line &input)
     while(it != codeList.end() && (*it).lineNum < lineNum)
         ++it;
     if(it != codeList.end() && (*it).lineNum == lineNum)
-        return false;
+    {
+        (*it).code = input.code;
+        return true;
+    }
     codeList.insert(it, input);
     return true;
 }

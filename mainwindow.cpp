@@ -75,6 +75,9 @@ void MainWindow::handleInput()
     QString in = ui->inputEdit->toPlainText();
     switch(opType)
     {
+        case WAIT_FOR_INPUT:
+            programInput(in);
+            break;
         case RUN:
             ui->resultBrowser->setText("Running now, please wait...");
             break;
@@ -202,6 +205,11 @@ void MainWindow::run()
 }
 
 bool MainWindow::runCode()
+{
+
+}
+
+void MainWindow::programInput(QString &input)
 {
 
 }

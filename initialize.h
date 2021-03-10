@@ -5,7 +5,12 @@
 
 enum OPTYPE
 {
-    INPUT, RUN, LOAD, SAVE, CLEAR
+    INPUT, RUN, LOAD, SAVE, WAIT_FOR_INPUT, CLEAR
+};
+
+enum ExpressionType
+{
+    CONSTANT, IDENTIFIER, COMPOUND
 };
 
 #endif // INITIALIZE_H

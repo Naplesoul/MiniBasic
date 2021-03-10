@@ -10,14 +10,18 @@ CONFIG += c++11
 
 SOURCES += \
     code.cpp \
+    expression.cpp \
     main.cpp \
     mainwindow.cpp \
+    program.cpp \
     statement.cpp
 
 HEADERS += \
     code.h \
+    expression.h \
     initialize.h \
     mainwindow.h \
+    program.h \
     statement.h
 
 FORMS += \

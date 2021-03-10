@@ -43,6 +43,8 @@ private:
     bool input(QString &input);
     void updateCodeBrowser();
 
+    void programInput(QString &input);
+
 signals:
     void quitSignal();
 };
