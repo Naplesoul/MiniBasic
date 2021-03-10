@@ -8,10 +8,10 @@
 
 struct Line
 {
-    int rowNum;
+    int lineNum;
     QString code;
 
-    Line(int n, QString c): rowNum(n), code(c){}
+    Line(int n, QString c): lineNum(n), code(c){}
 };
 
 class CodeBuffer
@@ -26,13 +26,11 @@ public:
 
     int size();
 
-    const QString &moveToLine(int idx);
-
-    void showLines(int from, int to);
-    int writeToFile(const QString &filename) const;
-    void deleteLines(int from, int to);
+    bool deleteLine(int lineNum);
     bool insertLine(const Line &text);
     void appendLine(const QString &text);
+    QString printCode();
+    void clear();
 
 };
 
@@ -48,10 +46,11 @@ private:
 public:
     explicit Code(QObject *parent = nullptr);
     bool insert(Line &input);
+    bool del(int lineNum);
     bool load(const QString &filename);
     bool save(const QString &filename) const;
     void clear();
-    void printCode();
+    QString printCode();
 
 signals:
     void print(QString);

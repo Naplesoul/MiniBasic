@@ -21,6 +21,9 @@ public:
     void updateCodeBrowser();
     void help();
     void quit();
+    void clearCode();
+    void loadFile(QString &filename);
+    void saveFile(QString &filename);
     ~MainWindow();
 
 protected:
@@ -33,6 +36,9 @@ private:
     OPTYPE opType;
 
     void runCode();
+
+signals:
+    void quitSignal();
 
 };
 #endif // MAINWINDOW_H

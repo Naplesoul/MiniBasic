@@ -15,85 +15,42 @@ int CodeBuffer::size()
 }
 
 
-void CodeBuffer::showLines(int from, int to)
+bool CodeBuffer::insertLine(const Line &input)
 {
-//    if(from > to)
-//    {
-//        throw "Number range error";
-//        return;
-//    }
-//    if(from < 1 || to > int(codeList.size()))
-//    {
-//        throw "Line number out of range";
-//        return;
-//    }
-//    QList<Line>::const_iterator it = codeList.begin();
-//    int linenum = from;
-//    while(from > 1)
-//    {
-//        if(it != codeList.end()) ++it;
-//    }
-
-//    while(linenum <= to)
-//    {
-//        qDebug() << linenum << '\t' << *it << '\n';
-//        if(it != codeList.end()) ++it;
-//        ++linenum;
-//    }
-//    currentLineNum = to;
+    int lineNum = input.lineNum;
+    QList<Line>::iterator it = codeList.begin();
+    while(it != codeList.end() && (*it).lineNum < lineNum)
+        ++it;
+    if(it != codeList.end() && (*it).lineNum == lineNum)
+        return false;
+    codeList.insert(it, input);
+    return true;
 }
 
-void CodeBuffer::deleteLines(int from, int to)
+bool CodeBuffer::deleteLine(int lineNum)
 {
-//    if(from > to)
-//    {
-//        throw "Delete range error";
-//        return;
-//    }
-//    if(from < 1 || to > int(codeList.size()))
-//    {
-//        throw "Line number out of range";
-//        return;
-//    }
-//    QList<QString>::iterator it = codeList.begin();
-//    int truefrom = from;
-//    int linenum = from;
-//    bool islast = false;
-//    auto dit = it;
-//    while(from > 1)
-//    {
-//        if(it != codeList.end()) ++it;
-//        --from;
-//    }
-//    while(linenum <= to)
-//    {
-//        dit = it;
-//        if(it != codeList.end()) ++it;
-//        else islast = true;
-//        codeList.erase(dit);
-//        ++linenum;
-//    }
-//    if(islast) currentLineNum = truefrom - 1;
-//    else currentLineNum = truefrom;
-//    if(codeList.empty()) currentLineNum = 0;
+    for(QList<Line>::iterator it = codeList.begin(); it != codeList.end(); ++it)
+    {
+        if((*it).lineNum == lineNum)
+        {
+            codeList.erase(it);
+            return true;
+        }
+    }
+    return false;
 }
 
-bool CodeBuffer::insertLine(const Line &text)
+QString CodeBuffer::printCode()
 {
-//    if(currentLineNum == 0)
-//    {
-//        codeList.push_back(text);
-//        currentLineNum = 1;
-//        return;
-//    }
-//    int cln = currentLineNum;
-//    QList<QString>::iterator it = codeList.begin();
-//    while(cln > 1)
-//    {
-//        if(it != codeList.end()) ++it;
-//        --cln;
-//    }
-//    codeList.insert(it,text);
+    QString output = "";
+    for(QList<Line>::iterator it = codeList.begin(); it != codeList.end(); ++it)
+    {
+        output += QString::number((*it).lineNum);
+        output += " ";
+        output += (*it).code;
+        output += "\n";
+    }
+    return output;
 }
 
 void CodeBuffer::appendLine(const QString &text)
@@ -116,23 +73,12 @@ void CodeBuffer::appendLine(const QString &text)
 //    currentLineNum++;
 }
 
-const QString &CodeBuffer::moveToLine(int idx)
-{
-//    if(idx < 1 || idx > int(codeList.size()))
-//    {
-//        throw "Line number out of range";
-//    }
-//    currentLineNum = idx;
-//    int cln = currentLineNum;
-//    QList<QString>::const_iterator it = codeList.begin();
-//    while(cln > 1)
-//    {
-//        if(it != codeList.end()) ++it;
-//        --cln;
-//    }
-//    return *it;
-}
 
+
+void CodeBuffer::clear()
+{
+    codeList.clear();
+}
 
 
 Code::Code(QObject *parent) : QObject(parent)
@@ -143,7 +89,17 @@ Code::Code(QObject *parent) : QObject(parent)
 
 bool Code::insert(Line &input)
 {
+    return codeBuffer->insertLine(input);
+}
 
+bool Code::del(int lineNum)
+{
+    return codeBuffer->deleteLine(lineNum);
+}
+
+QString Code::printCode()
+{
+    return codeBuffer->printCode();
 }
 
 bool Code::load(const QString &filename)
@@ -158,5 +114,5 @@ bool Code::save(const QString &filename) const
 
 void Code::clear()
 {
-
+    codeBuffer->clear();
 }
