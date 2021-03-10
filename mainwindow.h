@@ -16,17 +16,13 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QWidget *parent = nullptr);
-    void handleInput();
-    bool input(QString &input);
-    void updateCodeBrowser();
+
     void help();
     void quit();
-    void clearCode();
-    void loadFile(QString &filename);
-    void saveFile(QString &filename);
     void load();
     void save();
     void run();
+    void clear();
     ~MainWindow();
 
 protected:
@@ -39,9 +35,15 @@ private:
     OPTYPE opType;
 
     bool runCode();
+    void clearCode();
+    void loadFile(QString &filename);
+    void saveFile(QString &filename);
+
+    void handleInput();
+    bool input(QString &input);
+    void updateCodeBrowser();
 
 signals:
     void quitSignal();
-
 };
 #endif // MAINWINDOW_H

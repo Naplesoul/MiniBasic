@@ -14,7 +14,7 @@ MainWindow::MainWindow(QWidget *parent)
     setWindowTitle("MiniBasic");
     connect(ui->loadButton, &QPushButton::clicked, this, &MainWindow::load);
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
-    connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clearCode);
+    connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clear);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
 }
 
@@ -159,9 +159,7 @@ bool MainWindow::input(QString &input)
     }
     if(cmd == "CLEAR")
     {
-        opType = CLEAR;
-        clearCode();
-        opType = INPUT;
+        clear();
         return true;
     }
     if(cmd == "HELP")
@@ -283,6 +281,13 @@ void MainWindow::save()
     opType = SAVE;
     ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
     ui->inputEdit->setFocus();
+}
+
+void MainWindow::clear()
+{
+    opType = CLEAR;
+    clearCode();
+    opType = INPUT;
 }
 
 MainWindow::~MainWindow()
