@@ -64,7 +64,7 @@ class IdentifierExp: public Expression
 
 public:
 
-   IdentifierExp(string name);
+   IdentifierExp(QString name);
 
     virtual int eval(EvaluationContext & context);
     virtual QString toString();
@@ -83,7 +83,7 @@ class CompoundExp: public Expression
 
 public:
 
-   CompoundExp(string op, Expression *lhs, Expression *rhs);
+   CompoundExp(QString op, Expression *lhs, Expression *rhs);
    virtual ~CompoundExp();
 
    virtual int eval(EvaluationContext & context);

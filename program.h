@@ -12,10 +12,13 @@ class Program : public QObject
 public:
     explicit Program(QObject *parent = nullptr);
 
-    bool praseStatements(QList<Line> code);
+    bool parseStatements(const QList<Line> &code);
+    bool run(QString &input, QString &output);
 
 private:
     QList<Statement> statements;
+    EvaluationContext evaluationContext;
+
 signals:
     void print(QString &output);
 };

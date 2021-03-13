@@ -56,7 +56,7 @@ QString CodeBuffer::printCode()
     return output;
 }
 
-QList<Line> CodeBuffer::getCode()
+const QList<Line>& CodeBuffer::getCode() const
 {
     return codeList;
 }
@@ -149,7 +149,7 @@ bool Code::save(const QString &filename)
     return true;
 }
 
-QList<Line> Code::getCode()
+const QList<Line>& Code::getCode() const
 {
     return codeBuffer->getCode();
 }

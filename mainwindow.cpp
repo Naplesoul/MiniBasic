@@ -7,7 +7,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , code(new Code(this))
     , program(new Program(this))
-    , opType(INPUT)
+    , status(INPUT)
 {
     ui->setupUi(this);
     ui->inputEdit->setFocus();
@@ -76,7 +76,7 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
 void MainWindow::handleInput()
 {
     QString in = ui->inputEdit->toPlainText();
-    switch(opType)
+    switch(status)
     {
         case WAIT_FOR_INPUT:
             programInput(in);
@@ -201,28 +201,48 @@ bool MainWindow::input(QString &input)
 
 void MainWindow::run()
 {
-    opType = RUN;
+    status = RUN;
     ui->resultBrowser->clear();
+    inputOfProgram.clear();
+    outputOfProgram.clear();
+    try
+    {
+        program->parseStatements(code->getCode());
+    }
+    catch(QString err)
+    {
+        ui->resultBrowser->setPlainText(err);
+    }
+
     runCode();
-    opType = INPUT;
-    ui->inputEdit->setFocus();
 }
 
-bool MainWindow::runCode()
+void MainWindow::runCode()
 {
     try
     {
-        program->praseStatements(code->getCode());
+        if(program->run(inputOfProgram, outputOfProgram))
+        {
+            outputOfProgram += "\n[Program executed successfully]";
+            ui->resultBrowser->setPlainText(outputOfProgram);
+            status = INPUT;
+        }
+        else
+            status = WAIT_FOR_INPUT;
     }
     catch(QString)
     {
 
     }
+
+    ui->inputEdit->setFocus();
 }
 
 void MainWindow::programInput(QString &input)
 {
-
+    inputOfProgram += input;
+    status = RUN;
+    runCode();
 }
 
 void MainWindow::clearCode()
@@ -248,7 +268,7 @@ void MainWindow::quit()
     emit quitSignal();
 }
 
-void MainWindow::loadFile(QString &filename)
+void MainWindow::loadFile(const QString &filename)
 {
     switch(code->load(filename))
     {
@@ -272,14 +292,14 @@ void MainWindow::loadFile(QString &filename)
     }
 }
 
-void MainWindow::saveFile(QString &filename)
+void MainWindow::saveFile(const QString &filename)
 {
     if(code->save(filename))
     {
         ui->resultBrowser->setPlainText("File saved");
         qDebug() << "[FILE] file saved";
         ui->inputEdit->clear();
-        opType = INPUT;
+        status = INPUT;
     }
     else
     {
@@ -290,21 +310,21 @@ void MainWindow::saveFile(QString &filename)
 
 void MainWindow::load()
 {
-    opType = LOAD;
+    status = LOAD;
 //    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
     QString filename = QFileDialog::getOpenFileName(this, "choose a file to open");
     loadFile(filename);
-    opType = INPUT;
+    status = INPUT;
     ui->inputEdit->setFocus();
 }
 
 void MainWindow::save()
 {
-    opType = SAVE;
+    status = SAVE;
 //    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
     QString filename = QFileDialog::getSaveFileName(this, "choose a file to save");
     saveFile(filename);
-    opType = INPUT;
+    status = INPUT;
     ui->inputEdit->setFocus();
 }
 
@@ -315,9 +335,9 @@ void MainWindow::print(QString &output)
 
 void MainWindow::clear()
 {
-    opType = CLEAR;
+    status = CLEAR;
     clearCode();
-    opType = INPUT;
+    status = INPUT;
 }
 
 MainWindow::~MainWindow()

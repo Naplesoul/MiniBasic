@@ -34,12 +34,14 @@ private:
     Ui::MainWindow *ui;
     Code *code;
     Program *program;
-    OPTYPE opType;
+    QString inputOfProgram;
+    QString outputOfProgram;
+    Status status;
 
-    bool runCode();
     void clearCode();
-    void loadFile(QString &filename);
-    void saveFile(QString &filename);
+    void loadFile(const QString &filename);
+    void saveFile(const QString &filename);
+    void runCode();
 
     void handleInput();
     bool input(QString &input);
