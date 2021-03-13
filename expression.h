@@ -12,13 +12,13 @@ class EvaluationContext
 
 public:
 
-   void setValue(QString var, int value);
-   int getValue(QString var);
-   bool isDefined(QString var);
+    void setValue(QString var, int value);
+    int getValue(QString var);
+    bool isDefined(QString var);
 
 private:
 
-   QMap<QString,int> symbolTable;
+    QMap<QString,int> symbolTable;
 
 };
 
@@ -26,17 +26,21 @@ private:
 class Expression
 {
 public:
-    Expression();
+    Expression(){}
     virtual ~Expression();
     virtual int eval(EvaluationContext & context) = 0;
     virtual QString toString() = 0;
     virtual ExpressionType type() = 0;
 
     virtual int getConstantValue();
+    virtual int precedence();
     virtual QString getIdentifierName();
     virtual QString getOperator();
     virtual Expression *getLHS();
     virtual Expression *getRHS();
+    virtual void setLHS(Expression *lhs);
+    virtual void setRHS(Expression *rhs);
+    virtual void setOp(const QString &o);
 
 };
 
@@ -45,13 +49,13 @@ class ConstantExp: public Expression
 
 public:
 
-    ConstantExp(int val);
-    ~ConstantExp();
+    ConstantExp(int val):value(val){}
+    ~ConstantExp(){}
     virtual int eval(EvaluationContext & context);
     virtual QString toString();
-    virtual ExpressionType type();
+    virtual ExpressionType type(){return CONSTANT;}
 
-    virtual int getConstantValue();
+    virtual int getConstantValue(){return value;}
 
 private:
 
@@ -63,18 +67,19 @@ class IdentifierExp: public Expression
 {
 
 public:
-
-   IdentifierExp(QString name);
+    IdentifierExp(const QString &var);
+    ~IdentifierExp(){}
+    bool isValidVarName(const QString &var);
 
     virtual int eval(EvaluationContext & context);
-    virtual QString toString();
-    virtual ExpressionType type();
+    virtual QString toString(){return name;}
+    virtual ExpressionType type(){return IDENTIFIER;}
 
-    virtual QString getIdentifierName();
+    virtual QString getIdentifierName(){return name;}
 
 private:
 
-   QString name;
+    QString name;
 
 };
 
@@ -82,22 +87,27 @@ class CompoundExp: public Expression
 {
 
 public:
+    CompoundExp(QString content);
+    CompoundExp(QString op, Expression *lhs, Expression *rhs):op(op),lhs(lhs),rhs(rhs){}
+    int findNearestOp(const QString &content);
+    virtual ~CompoundExp();
 
-   CompoundExp(QString op, Expression *lhs, Expression *rhs);
-   virtual ~CompoundExp();
+    virtual int eval(EvaluationContext & context);
+    virtual QString toString();
+    virtual ExpressionType type(){return COMPOUND;}
+    virtual int precedence();
 
-   virtual int eval(EvaluationContext & context);
-   virtual QString toString();
-   virtual ExpressionType type();
+    virtual QString getOperator(){return op;}
+    virtual Expression *getLHS(){return lhs;}
+    virtual Expression *getRHS(){return rhs;}
 
-   virtual QString getOperator();
-   virtual Expression *getLHS();
-   virtual Expression *getRHS();
+    virtual void setLHS(Expression *l){lhs = l;}
+    virtual void setRHS(Expression *r){rhs = r;}
+    virtual void setOp(const QString &o){op = o;}
 
 private:
-
-   QString op;
-   Expression *lhs, *rhs;
+    QString op;
+    Expression *lhs, *rhs;
 
 };
 
