@@ -7,6 +7,7 @@ Program::Program(QObject *parent) : QObject(parent)
 
 bool Program::parseStatements(const QList<Line> &code)
 {
+    statements.clear();
     QString fun;
     QString content;
     for(auto it = code.begin(); it != code.end(); ++it)
@@ -36,35 +37,35 @@ bool Program::parseStatements(const QList<Line> &code)
             else if(fun == "LET")
             {
                 LetStmt newStatement((*it).lineNum);
-                newStatement.parse(content);
+                newStatement.parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "PRINT")
             {
                 PrintStmt newStatement((*it).lineNum);
-                newStatement.parse(content);
+                newStatement.parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "INPUT")
             {
                 InputStmt newStatement((*it).lineNum);
-                newStatement.parse(content);
+                newStatement.parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "GOTO")
             {
                 GotoStmt newStatement((*it).lineNum);
-                newStatement.parse(content);
+                newStatement.parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "IF")
             {
                 IfStmt newStatement((*it).lineNum);
-                newStatement.parse(content);
+                newStatement.parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
@@ -77,4 +78,10 @@ bool Program::parseStatements(const QList<Line> &code)
         throw QString("Syntax error in Line ") + QString::number((*it).lineNum);
     }
     return true;
+}
+
+bool Program::run(QString &input, QString &output)
+{
+    evaluationContext.clear();
+    pc = statements.first().lineNum;
 }

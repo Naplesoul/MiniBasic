@@ -7,8 +7,6 @@
 #include <QString>
 
 
-bool isValidVarName(const QString &var);
-
 class Statement
 {
 public:
@@ -20,9 +18,6 @@ public:
 
     virtual bool parse(const QString &code);
     virtual QString run(EvaluationContext &evaluationContext, int &pc);
-
-protected:
-    void clearTree(CompoundExp *root);
 };
 
 
@@ -41,7 +36,7 @@ class LetStmt : public Statement
 {
 public:
     LetStmt(int l){lineNum = l, type = LETSTMT;}
-    ~LetStmt(){clearTree(exp);}
+    ~LetStmt(){delete exp;}
 
     bool parse(const QString &code);
     QString run(EvaluationContext &evaluationContext, int &pc);
@@ -56,7 +51,7 @@ class PrintStmt : public Statement
 {
 public:
     PrintStmt(int l){lineNum = l, type = PRINTSTMT;}
-    ~PrintStmt(){clearTree(exp);}
+    ~PrintStmt(){delete exp;}
 
     bool parse(const QString &code);
     QString run(EvaluationContext &evaluationContext, int &pc);
@@ -101,7 +96,7 @@ class IfStmt : public Statement
 {
 public:
     IfStmt(int l){lineNum = l, type = IFSTMT;}
-    ~IfStmt(){clearTree(lExp); clearTree(rExp);}
+    ~IfStmt(){delete lExp; delete rExp;}
 
     bool parse(const QString &code);
     QString run(EvaluationContext &evaluationContext, int &pc);
@@ -119,10 +114,7 @@ class EndStmt : public Statement
 {
 public:
     EndStmt(int l){lineNum = l, type = ENDSTMT;}
-    ~EndStmt();
-
-    bool parse(const QString &code);
-    QString run(EvaluationContext &evaluationContext, int &pc);
+    ~EndStmt(){}
 };
 
 #endif // STATEMENT_H

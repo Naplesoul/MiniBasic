@@ -15,6 +15,7 @@ public:
     void setValue(QString var, int value);
     int getValue(QString var);
     bool isDefined(QString var);
+    void clear(){symbolTable.clear();}
 
 private:
 

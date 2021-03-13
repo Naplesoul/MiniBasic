@@ -19,6 +19,8 @@ private:
     QList<Statement> statements;
     EvaluationContext evaluationContext;
 
+    int pc;
+
 signals:
     void print(QString &output);
 };
