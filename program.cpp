@@ -7,10 +7,11 @@ Program::Program(QObject *parent) : QObject(parent)
 
 bool Program::parseStatements(const QList<Line> &code)
 {
+    QList<Line> codes = code;
     statements.clear();
     QString fun;
     QString content;
-    for(auto it = code.begin(); it != code.end(); ++it)
+    for(auto it = codes.begin(); it != codes.end(); ++it)
     {
         int len = (*it).code.size();
         int funEnd = -1;
@@ -31,47 +32,47 @@ bool Program::parseStatements(const QList<Line> &code)
 
             if(fun == "REM")
             {
-                statements.push_back(RemStmt((*it).lineNum));
+//                statements.push_back(RemStmt((*it).lineNum));
                 continue;
             }
             else if(fun == "LET")
             {
-                LetStmt newStatement((*it).lineNum);
-                newStatement.parse(content.trimmed());
+                LetStmt* newStatement = new LetStmt((*it).lineNum);
+                newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "PRINT")
             {
-                PrintStmt newStatement((*it).lineNum);
-                newStatement.parse(content.trimmed());
+                PrintStmt* newStatement = new PrintStmt((*it).lineNum);
+                newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "INPUT")
             {
-                InputStmt newStatement((*it).lineNum);
-                newStatement.parse(content.trimmed());
+                InputStmt* newStatement = new InputStmt((*it).lineNum);
+                newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "GOTO")
             {
-                GotoStmt newStatement((*it).lineNum);
-                newStatement.parse(content.trimmed());
+                GotoStmt* newStatement = new GotoStmt((*it).lineNum);
+                newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "IF")
             {
-                IfStmt newStatement((*it).lineNum);
-                newStatement.parse(content.trimmed());
+                IfStmt* newStatement = new IfStmt((*it).lineNum);
+                newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
                 continue;
             }
             else if(fun == "END")
             {
-                statements.push_back(EndStmt((*it).lineNum));
+                statements.push_back(new EndStmt((*it).lineNum));
                 continue;
             }
         }
@@ -82,6 +83,47 @@ bool Program::parseStatements(const QList<Line> &code)
 
 bool Program::run(QString &input, QString &output)
 {
+    QList<Statement*>::iterator it = statements.begin();
+    for(; it != statements.end(); ++it)
+    {
+        if((*it)->lineNum == pc)
+            break;
+    }
+    while(it != statements.end())
+    {
+        int oriPc = pc;
+        if((*it)->type == ENDSTMT)
+            return true;
+
+        // ask for input
+        if(!(*it)->run(evaluationContext, pc, input, output))
+            return false;
+        if(pc == oriPc)
+        {
+            ++it;
+            if(it != statements.end())
+                pc = (*it)->lineNum;
+            continue;
+        }
+        else
+        {
+            // move it to target pc
+            for(; it != statements.end(); ++it)
+            {
+                if((*it)->lineNum == pc)
+                    break;
+            }
+            if(it == statements.end())
+                throw QString("Target line does not exist");
+        }
+    }
+    return true;
+}
+
+void Program::initialize()
+{
+    if(statements.empty())
+        throw QString("No code exist");
     evaluationContext.clear();
-    pc = statements.first().lineNum;
+    pc = statements.first()->lineNum;
 }

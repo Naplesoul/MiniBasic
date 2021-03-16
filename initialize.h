@@ -25,16 +25,7 @@ enum Operator
     EVAL, ADD, MINUS, MULTIPLY, DIVIDE, EXP, LBRACKET, RBRACKET
 };
 
-bool isInt(const QString &s)
-{
-    int len = s.length();
-    for(int i = 0; i < len; ++i)
-    {
-        if(!(s[i] <= '9' && s[i] >='0'))
-            return false;
-    }
-    return true;
-}
+
 
 //enum CompareOperator
 //{

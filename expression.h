@@ -28,20 +28,31 @@ class Expression
 {
 public:
     Expression(){}
-    virtual ~Expression();
+    virtual ~Expression(){}
     virtual int eval(EvaluationContext & context) = 0;
     virtual QString toString() = 0;
     virtual ExpressionType type() = 0;
 
-    virtual int getConstantValue();
-    virtual int precedence();
-    virtual QString getIdentifierName();
-    virtual QString getOperator();
-    virtual Expression *getLHS();
-    virtual Expression *getRHS();
-    virtual void setLHS(Expression *lhs);
-    virtual void setRHS(Expression *rhs);
-    virtual void setOp(const QString &o);
+    virtual int getConstantValue(){return 0;}
+    virtual int precedence(){return 0;}
+    virtual QString getIdentifierName(){return "";}
+    virtual QString getOperator(){return "";}
+    virtual Expression *getLHS(){return nullptr;}
+    virtual Expression *getRHS(){return nullptr;}
+    virtual void setLHS(Expression *lhs){}
+    virtual void setRHS(Expression *rhs){}
+    virtual void setOp(const QString &o){}
+
+    bool isIntNumber(const QString &s)
+    {
+        int len = s.length();
+        for(int i = 0; i < len; ++i)
+        {
+            if(!(s[i] <= '9' && s[i] >='0'))
+                return false;
+        }
+        return true;
+    }
 
 };
 
@@ -108,7 +119,7 @@ public:
 
 private:
     QString op;
-    Expression *lhs, *rhs;
+    Expression *lhs = nullptr, *rhs = nullptr;
 
 };
 

@@ -205,6 +205,7 @@ void MainWindow::run()
     ui->resultBrowser->clear();
     inputOfProgram.clear();
     outputOfProgram.clear();
+
     try
     {
         program->parseStatements(code->getCode());
@@ -214,6 +215,7 @@ void MainWindow::run()
         ui->resultBrowser->setPlainText(err);
     }
 
+    program->initialize();
     runCode();
 }
 
@@ -228,11 +230,14 @@ void MainWindow::runCode()
             status = INPUT;
         }
         else
+        {
             status = WAIT_FOR_INPUT;
+            ui->resultBrowser->setPlainText("Ask for input");
+        }
     }
-    catch(QString)
+    catch(QString err)
     {
-
+        ui->resultBrowser->setPlainText(err);
     }
 
     ui->inputEdit->setFocus();
@@ -240,7 +245,7 @@ void MainWindow::runCode()
 
 void MainWindow::programInput(QString &input)
 {
-    inputOfProgram += input;
+    inputOfProgram += " " + input;
     status = RUN;
     runCode();
 }

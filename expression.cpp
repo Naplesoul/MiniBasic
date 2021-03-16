@@ -1,15 +1,19 @@
 #include "expression.h"
 #include <QStack>
+#include <QDebug>
+
 
 void EvaluationContext::setValue(QString var, int value)
 {
-    if(isDefined(var))
-    {
-        symbolTable.remove(var);
-        symbolTable.insert(var, value);
-    }
-    else
-        symbolTable.insert(var, value);
+//    if(isDefined(var))
+//    {
+//        symbolTable.remove(var);
+//        symbolTable.insert(var, value);
+//    }
+//    else
+//        symbolTable.insert(var, value);
+
+    symbolTable[var] = value;
 }
 
 int EvaluationContext::getValue(QString var)
@@ -47,12 +51,26 @@ int IdentifierExp::eval(EvaluationContext & context)
 
 int CompoundExp::eval(EvaluationContext & context)
 {
-   int right = rhs->eval(context);
+   int right;
+   if(rhs)
+      right = rhs->eval(context);
+   else
+       right = 0;
+   int left;
+   if(lhs)
+      left = lhs->eval(context);
+   else
+       left = 0;
+   if(!rhs)
+       return left;
+   if(!lhs)
+       return right;
    if (op == "=") {
       context.setValue(lhs->getIdentifierName(), right);
       return right;
    }
-   int left = lhs->eval(context);
+
+
    if (op == "+") return left + right;
    if (op == "-") return left - right;
    if (op == "*") return left * right;
@@ -73,9 +91,9 @@ IdentifierExp::IdentifierExp(const QString &var)
 
 bool IdentifierExp::isValidVarName(const QString &var)
 {
-    if(!((var[1] >= 'a' && var[1] <= 'z')
-         || (var[1] >= 'A' && var[1] <= 'Z')
-         || var[1] == '_'))
+    if(!((var[0] >= 'a' && var[0] <= 'z')
+         || (var[0] >= 'A' && var[0] <= 'Z')
+         || var[0] == '_'))
         return false;
     if(var.contains('~') || var.contains('!') || var.contains('@')
             || var.contains('#')|| var.contains('$')|| var.contains('%')
@@ -107,6 +125,7 @@ int CompoundExp::findNearestOp(const QString &content)
 
 CompoundExp::CompoundExp(QString content)
 {
+    qDebug() << content <<'\n';
     QList<Expression*> expression;
     QStack<Expression*> operators;
     QStack<Expression*> operands;
@@ -117,17 +136,25 @@ CompoundExp::CompoundExp(QString content)
     while(opPosition >= 0)
     {
         QString op(content[opPosition]);
-        if(opPosition == 0 && op == "-")
+        // "-X" = "0 - X"
+        if(opPosition == 0 && op == "-" && (expression.isEmpty() || (expression.last()->type() == COMPOUND && expression.last()->getOperator() == "(")))
         {
-            op = "--";
-            expression.push_back(new CompoundExp(op, nullptr, nullptr));
+            expression.push_back(new ConstantExp(0));
+            expression.push_back(new CompoundExp("-", nullptr, nullptr));
+
+            content = content.mid(opPosition + 1).trimmed();
+            opPosition = findNearestOp(content);
             continue;
         }
-        QString newExp = content.left(opPosition - 1).trimmed();
-        if(isInt(newExp))
-            expression.push_back(new ConstantExp(newExp.toInt()));
-        else
-            expression.push_back(new IdentifierExp(newExp));
+        QString newExp = content.left(opPosition).trimmed();
+        qDebug() << newExp <<'\n';
+        if(newExp != "")
+        {
+            if(isIntNumber(newExp))
+                expression.push_back(new ConstantExp(newExp.toInt()));
+            else
+                expression.push_back(new IdentifierExp(newExp));
+        }
 
 
         if(op == "*" && content[opPosition + 1] == '*')
@@ -139,9 +166,10 @@ CompoundExp::CompoundExp(QString content)
         expression.push_back(new CompoundExp(op, nullptr, nullptr));
         opPosition = findNearestOp(content);
     }
+    qDebug() << content <<'\n';
     if(content.length() > 0)
     {
-        if(isInt(content))
+        if(isIntNumber(content))
             expression.push_back(new ConstantExp(content.toInt()));
         else
             expression.push_back(new IdentifierExp(content));
@@ -151,14 +179,17 @@ CompoundExp::CompoundExp(QString content)
     {
         QString op;
         int precedence;
-        Expression *exp = expression.first();
+        Expression *exp = expression.front();
         expression.pop_front();
         switch(exp->type())
         {
             case COMPOUND:
                 op = exp->getOperator();
                 if(op == "(")
+                {
                     operators.push(exp);
+                    break;
+                }
                 if(op == ")")
                 {
                     while(operators.top()->getOperator() != "(")
@@ -184,10 +215,11 @@ CompoundExp::CompoundExp(QString content)
                         operands.push(pop);
                     }
                     operators.pop();
+                    break;
                 }
 
                 precedence = exp->precedence();
-                while(operators.top()->precedence() >= precedence)
+                while(!operators.empty() && operators.top()->precedence() >= precedence)
                 {
                     Expression *pop = operators.pop();
 
@@ -209,7 +241,7 @@ CompoundExp::CompoundExp(QString content)
                     pop->setLHS(operands.pop());
                     operands.push(pop);
                 }
-                operands.push(exp);
+                operators.push(exp);
 
                 break;
             default:
@@ -218,7 +250,7 @@ CompoundExp::CompoundExp(QString content)
         }
     }
 
-    while(!operands.empty())
+    while(!operators.empty())
     {
         Expression *pop = operators.pop();
 

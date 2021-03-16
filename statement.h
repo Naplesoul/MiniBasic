@@ -11,13 +11,23 @@ class Statement
 {
 public:
     Statement(){}
-    virtual ~Statement();
+    virtual ~Statement(){}
 
     int lineNum;
     StatementType type;
 
-    virtual bool parse(const QString &code);
-    virtual QString run(EvaluationContext &evaluationContext, int &pc);
+    virtual bool parse(const QString &code){}
+    virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){}
+    bool isIntNumber(const QString &s)
+    {
+        int len = s.length();
+        for(int i = 0; i < len; ++i)
+        {
+            if(!(s[i] <= '9' && s[i] >='0'))
+                return false;
+        }
+        return true;
+    }
 };
 
 
@@ -39,7 +49,7 @@ public:
     ~LetStmt(){delete exp;}
 
     bool parse(const QString &code);
-    QString run(EvaluationContext &evaluationContext, int &pc);
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
 private:
     CompoundExp *exp;
 };
@@ -53,8 +63,8 @@ public:
     PrintStmt(int l){lineNum = l, type = PRINTSTMT;}
     ~PrintStmt(){delete exp;}
 
-    bool parse(const QString &code);
-    QString run(EvaluationContext &evaluationContext, int &pc);
+    virtual bool parse(const QString &code);
+    virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
 private:
     CompoundExp *exp;
 };
@@ -69,7 +79,7 @@ public:
     ~InputStmt(){delete var;}
 
     bool parse(const QString &code);
-    QString run(EvaluationContext &evaluationContext, int &pc);
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
 private:
     IdentifierExp *var;
 };
@@ -84,7 +94,7 @@ public:
     ~GotoStmt(){}
 
     bool parse(const QString &code);
-    QString run(EvaluationContext &evaluationContext, int &pc);
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
 private:
     int targetPC;
 };
@@ -99,7 +109,7 @@ public:
     ~IfStmt(){delete lExp; delete rExp;}
 
     bool parse(const QString &code);
-    QString run(EvaluationContext &evaluationContext, int &pc);
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
 private:
     CompoundExp *lExp;
     CompoundExp *rExp;

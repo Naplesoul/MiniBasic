@@ -15,8 +15,10 @@ public:
     bool parseStatements(const QList<Line> &code);
     bool run(QString &input, QString &output);
 
+    void initialize();
+
 private:
-    QList<Statement> statements;
+    QList<Statement*> statements;
     EvaluationContext evaluationContext;
 
     int pc;

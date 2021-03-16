@@ -40,10 +40,10 @@ bool LetStmt::parse(const QString &code)
     return true;
 }
 
-QString LetStmt::run(EvaluationContext &evaluationContext, int &pc)
+bool LetStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
 {
     evaluationContext.setValue(exp->getLHS()->toString(), exp->getRHS()->eval(evaluationContext));
-    return "";
+    return true;
 }
 
 bool PrintStmt::parse(const QString &code)
@@ -52,15 +52,53 @@ bool PrintStmt::parse(const QString &code)
     return true;
 }
 
-QString PrintStmt::run(EvaluationContext &evaluationContext, int &pc)
+bool PrintStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
 {
     int val = exp->eval(evaluationContext);
-    return QString::number(val) + "\n";
+    output += QString::number(val) + "\n";
+    return true;
+}
+
+bool InputStmt::parse(const QString &code)
+{
+    var = new IdentifierExp(code);
+    return true;
+}
+
+bool InputStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
+{
+    input = input.trimmed();
+    if(input.isEmpty())
+        return false;
+    int len = input.length();
+    int numEnd = -1;
+    for(int i = 0; i < len; ++i)
+    {
+        if(input[i] == ' ')
+        {
+            numEnd = i - 1;
+            break;
+        }
+        if(i == len - 1)
+        {
+            numEnd = i;
+        }
+    }
+    if(numEnd >= 0)
+    {
+        QString numberString = input.left(numEnd + 1);
+        input = input.mid(numEnd + 2);
+        if(!isIntNumber(numberString))
+            throw QString("Invalid input. Please input an int");
+        evaluationContext.setValue(var->toString(), numberString.toInt());
+        return true;
+    }
+    return false;
 }
 
 bool GotoStmt::parse(const QString &code)
 {
-    if(!isInt(code))
+    if(!isIntNumber(code))
         throw QString("Target position should be int in Line ");
     int target = code.toInt();
     if(target < 0)
@@ -69,10 +107,10 @@ bool GotoStmt::parse(const QString &code)
     return true;
 }
 
-QString GotoStmt::run(EvaluationContext &evaluationContext, int &pc)
+bool GotoStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
 {
     pc = targetPC;
-    return "";
+    return true;
 }
 
 bool IfStmt::parse(const QString &code)
@@ -112,10 +150,10 @@ bool IfStmt::parse(const QString &code)
     {
         throw QString("Syntax error in Line ") + QString::number(lineNum);
     }
-    rExp = new CompoundExp(content.left(op - 1).trimmed());
+    rExp = new CompoundExp(content.left(op).trimmed());
     content = content.mid(op + 4).trimmed();
 
-    if(!isInt(content))
+    if(!isIntNumber(content))
         throw QString("Target position should be int in Line ");
     int target = content.toInt();
     if(target < 0)
@@ -124,7 +162,7 @@ bool IfStmt::parse(const QString &code)
     return true;
 }
 
-QString IfStmt::run(EvaluationContext &evaluationContext, int &pc)
+bool IfStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
 {
     int left = lExp->eval(evaluationContext);
     int right = rExp->eval(evaluationContext);
@@ -143,5 +181,5 @@ QString IfStmt::run(EvaluationContext &evaluationContext, int &pc)
         if(left == right)
             pc = targetPC;
     }
-    return "";
+    return true;
 }
