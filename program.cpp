@@ -76,6 +76,7 @@ bool Program::parseStatements(const QList<Line> &code)
                 continue;
             }
         }
+//        throw int(1);
         throw QString("Syntax error in Line ") + QString::number((*it).lineNum);
     }
     return true;

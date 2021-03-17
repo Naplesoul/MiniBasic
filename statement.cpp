@@ -1,4 +1,5 @@
 #include "statement.h"
+#include <QDebug>
 
 bool LetStmt::parse(const QString &code)
 {
@@ -127,13 +128,14 @@ bool IfStmt::parse(const QString &code)
         }
     }
 
+    qDebug()<<"???";
     if(op <= 0)
     {
         throw QString("Syntax error in Line ") + QString::number(lineNum);
     }
 
     compareOp = content[op];
-    lExp = new CompoundExp(content.left(op - 1).trimmed());
+    lExp = new CompoundExp(content.left(op).trimmed());
     content = content.mid(op + 1).trimmed();
     len = content.length();
     op = -1;
@@ -148,7 +150,8 @@ bool IfStmt::parse(const QString &code)
     }
     if(op <= 0)
     {
-        throw QString("Syntax error in Line ") + QString::number(lineNum);
+//        throw int(1);
+        throw QString(QString("Syntax error in Line ") + QString::number(lineNum));
     }
     rExp = new CompoundExp(content.left(op).trimmed());
     content = content.mid(op + 4).trimmed();

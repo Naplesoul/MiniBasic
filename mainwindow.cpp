@@ -209,13 +209,15 @@ void MainWindow::run()
     try
     {
         program->parseStatements(code->getCode());
+        program->initialize();
     }
     catch(QString err)
     {
         ui->resultBrowser->setPlainText(err);
+        status = INPUT;
+        ui->inputEdit->setFocus();
+        return;
     }
-
-    program->initialize();
     runCode();
 }
 
@@ -238,6 +240,9 @@ void MainWindow::runCode()
     catch(QString err)
     {
         ui->resultBrowser->setPlainText(err);
+        status = INPUT;
+        ui->inputEdit->setFocus();
+        return;
     }
 
     ui->inputEdit->setFocus();
@@ -247,6 +252,7 @@ void MainWindow::programInput(QString &input)
 {
     inputOfProgram += " " + input;
     status = RUN;
+    ui->inputEdit->clear();
     runCode();
 }
 
