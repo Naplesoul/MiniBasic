@@ -1,6 +1,7 @@
 #include "expression.h"
 #include <QStack>
 #include <QDebug>
+#include <cmath>
 
 
 void EvaluationContext::setValue(QString var, int value)
@@ -78,6 +79,7 @@ int CompoundExp::eval(EvaluationContext & context)
       if (right == 0) throw QString("Division by 0");
       return left / right;
    }
+   if (op == "**") return pow(left, right);
    throw QString("Illegal operator in expression");
    return 0;
 }
@@ -132,7 +134,9 @@ CompoundExp::CompoundExp(QString content)
 
     if(content.contains('='))
         throw QString("Syntax error in Line ");
+    // find the first operator
     int opPosition = findNearestOp(content);
+    // push all the expressions into QList expression
     while(opPosition >= 0)
     {
         QString op(content[opPosition]);
@@ -156,7 +160,7 @@ CompoundExp::CompoundExp(QString content)
                 expression.push_back(new IdentifierExp(newExp));
         }
 
-
+        // operator is **
         if(op == "*" && content[opPosition + 1] == '*')
         {
             op += "*";
@@ -167,6 +171,7 @@ CompoundExp::CompoundExp(QString content)
         opPosition = findNearestOp(content);
     }
     qDebug() << content <<'\n';
+    // handle the last expression
     if(content.length() > 0)
     {
         if(isIntNumber(content))
@@ -196,16 +201,16 @@ CompoundExp::CompoundExp(QString content)
                     {
                         Expression *pop = operators.pop();
 
-                        if(pop->getOperator() == "--")
-                        {
-                            if(operands.empty())
-                                throw QString("Syntax error in Line ");
-                            pop->setRHS(operands.pop());
-                            pop->setLHS(new ConstantExp(0));
-                            pop->setOp("-");
-                            operands.push(pop);
-                            continue;
-                        }
+//                        if(pop->getOperator() == "--")
+//                        {
+//                            if(operands.empty())
+//                                throw QString("Syntax error in Line ");
+//                            pop->setRHS(operands.pop());
+//                            pop->setLHS(new ConstantExp(0));
+//                            pop->setOp("-");
+//                            operands.push(pop);
+//                            continue;
+//                        }
                         if(operands.empty())
                             throw QString("Syntax error in Line ");
                         pop->setRHS(operands.pop());
@@ -219,20 +224,22 @@ CompoundExp::CompoundExp(QString content)
                 }
 
                 precedence = exp->precedence();
+                if (op == "**")
+                    precedence += 1;
                 while(!operators.empty() && operators.top()->precedence() >= precedence)
                 {
                     Expression *pop = operators.pop();
 
-                    if(pop->getOperator() == "--")
-                    {
-                        if(operands.empty())
-                            throw QString("Syntax error in Line ");
-                        pop->setRHS(operands.pop());
-                        pop->setLHS(new ConstantExp(0));
-                        pop->setOp("-");
-                        operands.push(pop);
-                        continue;
-                    }
+//                    if(pop->getOperator() == "--")
+//                    {
+//                        if(operands.empty())
+//                            throw QString("Syntax error in Line ");
+//                        pop->setRHS(operands.pop());
+//                        pop->setLHS(new ConstantExp(0));
+//                        pop->setOp("-");
+//                        operands.push(pop);
+//                        continue;
+//                    }
                     if(operands.empty())
                         throw QString("Syntax error in Line ");
                     pop->setRHS(operands.pop());
@@ -254,16 +261,16 @@ CompoundExp::CompoundExp(QString content)
     {
         Expression *pop = operators.pop();
 
-        if(pop->getOperator() == "--")
-        {
-            if(operands.empty())
-                throw QString("Syntax error in Line ");
-            pop->setRHS(operands.pop());
-            pop->setLHS(new ConstantExp(0));
-            pop->setOp("-");
-            operands.push(pop);
-            continue;
-        }
+//        if(pop->getOperator() == "--")
+//        {
+//            if(operands.empty())
+//                throw QString("Syntax error in Line ");
+//            pop->setRHS(operands.pop());
+//            pop->setLHS(new ConstantExp(0));
+//            pop->setOp("-");
+//            operands.push(pop);
+//            continue;
+//        }
 
         if(operands.empty())
             throw QString("Syntax error in Line ");

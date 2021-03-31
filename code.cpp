@@ -93,10 +93,10 @@ QString Code::printCode()
 // -2: file contains errors
 int Code::load(const QString &filename)
 {
-    codeBuffer->clear();
     std::fstream file(filename.toStdString());
     if(!file)
         return -1;
+    codeBuffer->clear();
     std::string line;
     while(std::getline(file, line))
     {
