@@ -24,7 +24,7 @@ private:
     int pc;
 
 signals:
-    void print(QString &output);
+    void printTree(QString output);
 };
 
 #endif // PROGRAM_H

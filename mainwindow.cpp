@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clear);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
 
-    connect(program, &Program::print, this, &MainWindow::print);
+    connect(program, &Program::printTree, this, &MainWindow::printTree);
 }
 
 // filter shortcut keys: ctrl+L, ctrl+S
@@ -203,6 +203,7 @@ void MainWindow::run()
 {
     status = RUN;
     ui->resultBrowser->clear();
+    ui->treeBrowser->clear();
     inputOfProgram.clear();
     outputOfProgram.clear();
 
@@ -339,9 +340,9 @@ void MainWindow::save()
     ui->inputEdit->setFocus();
 }
 
-void MainWindow::print(QString &output)
+void MainWindow::printTree(QString output)
 {
-    ui->resultBrowser->append(output);
+    ui->treeBrowser->append(output);
 }
 
 void MainWindow::clear()

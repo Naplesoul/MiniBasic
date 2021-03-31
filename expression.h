@@ -30,6 +30,7 @@ public:
     Expression(){}
     virtual ~Expression(){}
     virtual int eval(EvaluationContext & context) = 0;
+    virtual QString toTree(int layer) = 0;
     virtual QString toString() = 0;
     virtual ExpressionType type() = 0;
 
@@ -64,7 +65,8 @@ public:
     ConstantExp(int val):value(val){}
     ~ConstantExp(){}
     virtual int eval(EvaluationContext & context);
-    virtual QString toString();
+    virtual QString toTree(int layer);
+    virtual QString toString(){return QString::number(value);}
     virtual ExpressionType type(){return CONSTANT;}
 
     virtual int getConstantValue(){return value;}
@@ -84,6 +86,7 @@ public:
     bool isValidVarName(const QString &var);
 
     virtual int eval(EvaluationContext & context);
+    virtual QString toTree(int layer);
     virtual QString toString(){return name;}
     virtual ExpressionType type(){return IDENTIFIER;}
 
@@ -105,7 +108,8 @@ public:
     virtual ~CompoundExp();
 
     virtual int eval(EvaluationContext & context);
-    virtual QString toString();
+    virtual QString toTree(int layer);
+    virtual QString toString(){return op;}
     virtual ExpressionType type(){return COMPOUND;}
     virtual int precedence();
 

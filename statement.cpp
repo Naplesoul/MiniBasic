@@ -186,3 +186,47 @@ bool IfStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, 
     }
     return true;
 }
+
+QString LetStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " LET =\n";
+    tree += exp->getLHS()->toTree(1);
+    tree += exp->getRHS()->toTree(1);
+    return tree;
+}
+
+QString PrintStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " PRINT\n";
+    tree += exp->toTree(1);
+    return tree;
+}
+
+QString InputStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " INPUT\n";
+    tree += var->toTree(1);
+    return tree;
+}
+
+QString GotoStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " GOTO\n";
+    tree += "\t" + QString::number(targetPC) + "\n";
+    return tree;
+}
+
+QString IfStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " IF THEN\n";
+    tree += lExp->toTree(1);
+    tree += "\t" + compareOp + "\n";
+    tree += rExp->toTree(1);
+    tree += "\t" + QString::number(targetPC) + "\n";
+    return tree;
+}

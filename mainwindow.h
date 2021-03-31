@@ -48,7 +48,8 @@ private:
     void updateCodeBrowser();
 
     void programInput(QString &input);
-    void print(QString &output);
+//    void print(QString &output);
+    void printTree(QString output);
 
 signals:
     void quitSignal();

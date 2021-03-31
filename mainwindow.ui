@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1400</width>
+    <width>1600</width>
     <height>1000</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1400</width>
+    <width>1600</width>
     <height>1000</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1400</width>
+    <width>1600</width>
     <height>1000</height>
    </size>
   </property>
@@ -31,31 +31,31 @@
      <rect>
       <x>640</x>
       <y>40</y>
-      <width>401</width>
+      <width>371</width>
       <height>651</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
+     <string notr="true">font: 81 9pt &quot;JetBrains Mono ExtraBold&quot;;</string>
     </property>
    </widget>
    <widget class="QTextBrowser" name="treeBrowser">
     <property name="geometry">
      <rect>
-      <x>1060</x>
-      <y>41</y>
-      <width>321</width>
+      <x>1030</x>
+      <y>40</y>
+      <width>541</width>
       <height>651</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
+     <string notr="true">font: 81 9pt &quot;JetBrains Mono ExtraBold&quot;;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="saveButton">
     <property name="geometry">
      <rect>
-      <x>1240</x>
+      <x>1420</x>
       <y>770</y>
       <width>131</width>
       <height>41</height>
@@ -73,7 +73,7 @@
      <rect>
       <x>33</x>
       <y>739</y>
-      <width>1171</width>
+      <width>1351</width>
       <height>231</height>
      </rect>
     </property>
@@ -84,7 +84,7 @@
    <widget class="QPushButton" name="runButton">
     <property name="geometry">
      <rect>
-      <x>1240</x>
+      <x>1420</x>
       <y>890</y>
       <width>131</width>
       <height>81</height>
@@ -145,8 +145,8 @@
    <widget class="QLabel" name="treeLabel">
     <property name="geometry">
      <rect>
-      <x>1063</x>
-      <y>-1</y>
+      <x>1030</x>
+      <y>0</y>
       <width>251</width>
       <height>51</height>
      </rect>
@@ -177,7 +177,7 @@
    <widget class="QPushButton" name="loadButton">
     <property name="geometry">
      <rect>
-      <x>1240</x>
+      <x>1420</x>
       <y>710</y>
       <width>131</width>
       <height>41</height>
@@ -193,7 +193,7 @@
    <widget class="QPushButton" name="clearButton">
     <property name="geometry">
      <rect>
-      <x>1240</x>
+      <x>1420</x>
       <y>830</y>
       <width>131</width>
       <height>41</height>
@@ -212,7 +212,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1400</width>
+     <width>1600</width>
      <height>22</height>
     </rect>
    </property>

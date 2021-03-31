@@ -13,6 +13,7 @@ bool Program::parseStatements(const QList<Line> &code)
     QString content;
     for(auto it = codes.begin(); it != codes.end(); ++it)
     {
+        QString tree = "";
         int len = (*it).code.size();
         int funEnd = -1;
         for(int i = 0; i < len; ++i)
@@ -33,6 +34,9 @@ bool Program::parseStatements(const QList<Line> &code)
             if(fun == "REM")
             {
 //                statements.push_back(RemStmt((*it).lineNum));
+                tree += QString::number((*it).lineNum) + " REM\n";
+                tree += "\t" + (*it).code;
+                emit printTree(tree);
                 continue;
             }
             else if(fun == "LET")
@@ -40,6 +44,7 @@ bool Program::parseStatements(const QList<Line> &code)
                 LetStmt* newStatement = new LetStmt((*it).lineNum);
                 newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
+                emit printTree(newStatement->printTree());
                 continue;
             }
             else if(fun == "PRINT")
@@ -47,6 +52,7 @@ bool Program::parseStatements(const QList<Line> &code)
                 PrintStmt* newStatement = new PrintStmt((*it).lineNum);
                 newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
+                emit printTree(newStatement->printTree());
                 continue;
             }
             else if(fun == "INPUT")
@@ -54,6 +60,7 @@ bool Program::parseStatements(const QList<Line> &code)
                 InputStmt* newStatement = new InputStmt((*it).lineNum);
                 newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
+                emit printTree(newStatement->printTree());
                 continue;
             }
             else if(fun == "GOTO")
@@ -61,6 +68,7 @@ bool Program::parseStatements(const QList<Line> &code)
                 GotoStmt* newStatement = new GotoStmt((*it).lineNum);
                 newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
+                emit printTree(newStatement->printTree());
                 continue;
             }
             else if(fun == "IF")
@@ -68,11 +76,14 @@ bool Program::parseStatements(const QList<Line> &code)
                 IfStmt* newStatement = new IfStmt((*it).lineNum);
                 newStatement->parse(content.trimmed());
                 statements.push_back(newStatement);
+                emit printTree(newStatement->printTree());
                 continue;
             }
             else if(fun == "END")
             {
                 statements.push_back(new EndStmt((*it).lineNum));
+                tree += QString::number((*it).lineNum) + " END\n";
+                emit printTree(tree);
                 continue;
             }
         }

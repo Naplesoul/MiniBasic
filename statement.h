@@ -18,6 +18,7 @@ public:
 
     virtual bool parse(const QString &code){}
     virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){}
+    virtual QString printTree(){}
     bool isIntNumber(const QString &s)
     {
         int len = s.length();
@@ -50,6 +51,7 @@ public:
 
     bool parse(const QString &code);
     bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
 private:
     CompoundExp *exp;
 };
@@ -65,6 +67,7 @@ public:
 
     virtual bool parse(const QString &code);
     virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
 private:
     CompoundExp *exp;
 };
@@ -80,6 +83,7 @@ public:
 
     bool parse(const QString &code);
     bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
 private:
     IdentifierExp *var;
 };
@@ -95,6 +99,7 @@ public:
 
     bool parse(const QString &code);
     bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
 private:
     int targetPC;
 };
@@ -110,6 +115,7 @@ public:
 
     bool parse(const QString &code);
     bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
 private:
     CompoundExp *lExp;
     CompoundExp *rExp;

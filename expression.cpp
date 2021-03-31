@@ -38,9 +38,23 @@ int ConstantExp::eval(EvaluationContext & context)
    return value;
 }
 
-QString ConstantExp::toString()
+QString ConstantExp::toTree(int layer)
 {
-    return QString::number(value);
+    QString out = "";
+    for(int i = 0; i < layer; ++i)
+        out += "\t";
+    out += QString::number(value);
+    out += "\n";
+    return out;
+}
+QString IdentifierExp::toTree(int layer)
+{
+    QString out = "";
+    for(int i = 0; i < layer; ++i)
+        out += "\t";
+    out += name;
+    out += "\n";
+    return out;
 }
 
 int IdentifierExp::eval(EvaluationContext & context)
@@ -306,7 +320,23 @@ CompoundExp::~CompoundExp()
         delete rhs;
 }
 
-QString CompoundExp::toString()
+QString CompoundExp::toTree(int layer)
 {
-    return "";
+    QString out = "";
+    if (op == "")
+    {
+        if (lhs)
+            out += lhs->toTree(layer);
+        if (rhs)
+            out += rhs->toTree(layer);
+        return out;
+    }
+    for(int i = 0; i < layer; ++i)
+        out += "\t";
+    out += op + "\n";
+    if (lhs)
+        out += lhs->toTree(layer + 1);
+    if (rhs)
+        out += rhs->toTree(layer + 1);
+    return out;
 }
