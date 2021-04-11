@@ -2,6 +2,8 @@
 #include "ui_mainwindow.h"
 #include <QFileDialog>
 
+
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -97,7 +99,7 @@ void MainWindow::handleInput()
             else
             {
 //                qDebug() << "[INVAILD] invalid input";
-                ui->resultBrowser->setPlainText("[Invaild input]\n[Press del to clear input]");
+                ui->resultBrowser->setPlainText("[Invaild input. Press del to clear input]");
             }
             break;
         default:
@@ -203,7 +205,7 @@ bool MainWindow::input(QString &input)
         int lineNum = input.mid(cmdEnd + 1).toInt();
         if(code->del(lineNum))
         {
-            QString message = "Line" + input.mid(cmdEnd + 1) + " deleted";
+            QString message = "[Line" + input.mid(cmdEnd + 1) + " deleted]";
             qDebug() << "[VAILD] valid delete";
             updateCodeBrowser();
             ui->resultBrowser->setPlainText(message);
@@ -212,7 +214,6 @@ bool MainWindow::input(QString &input)
         else
         {
             qDebug() << "[INVAILD] invalid input";
-            ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
             return false;
         }
     }
@@ -261,7 +262,7 @@ void MainWindow::runCode()
         else
         {
             status = WAIT_FOR_INPUT;
-            ui->resultBrowser->setPlainText("Ask for input");
+            ui->resultBrowser->setPlainText("[Ask for input]");
         }
     }
     catch(QString err)
@@ -294,10 +295,9 @@ void MainWindow::runSingle(QString &cmd)
     }
     catch(QString)
     {
-        ui->resultBrowser->setPlainText("Invalid Command!");
+        ui->resultBrowser->setPlainText("[Invalid Command]");
         status = INPUT;
-        ui->inputEdit->setFocus();
-        return;
+        ui->treeBrowser->setPlainText("1 Error\n");
     }
     ui->inputEdit->setFocus();
 }
@@ -316,15 +316,14 @@ void MainWindow::runSingleCode()
         else
         {
             status = WAIT_FOR_INPUT;
-            ui->resultBrowser->setPlainText("Ask for input");
+            ui->resultBrowser->setPlainText("[Ask for input]");
         }
     }
     catch(QString)
     {
-        ui->resultBrowser->setPlainText("Invalid Command!");
+        ui->resultBrowser->setPlainText("[Invalid Command]");
         status = INPUT;
-        ui->inputEdit->setFocus();
-        return;
+        ui->treeBrowser->setPlainText("1 Error\n");
     }
     inputOfProgram.clear();
     outputOfProgram.clear();
@@ -347,7 +346,7 @@ void MainWindow::clearCode()
     code->clear();
     ui->treeBrowser->clear();
     updateCodeBrowser();
-    ui->resultBrowser->setPlainText("Code cleared");
+    ui->resultBrowser->setPlainText("[Code cleared]");
     ui->inputEdit->setFocus();
 }
 
@@ -358,7 +357,7 @@ void MainWindow::updateCodeBrowser()
 
 void MainWindow::help()
 {
-    ui->resultBrowser->setPlainText("This is help...");
+    ui->resultBrowser->setPlainText(helpText);
 }
 
 void MainWindow::quit()
@@ -374,20 +373,20 @@ void MainWindow::loadFile(const QString &filename)
         case 0:
             updateCodeBrowser();
             ui->treeBrowser->clear();
-            ui->resultBrowser->setPlainText("File loaded");
-            qDebug() << "[FILE] file loaded";
+            ui->resultBrowser->setPlainText("[File loaded]");
+//            qDebug() << "[FILE] file loaded";
             ui->inputEdit->clear();
             break;
         // unable to open
         case -1:
-            ui->resultBrowser->setPlainText("Invaild file path, please try again");
-            qDebug() << "[INVALID] invaild file path";
+            ui->resultBrowser->setPlainText("[Invaild file path]");
+//            qDebug() << "[INVALID] invaild file path";
             break;
         // file contains errors
         case -2:
             ui->treeBrowser->clear();
-            ui->resultBrowser->setPlainText("File contains invaild line numbers, please revise");
-            qDebug() << "[INVALID] invaild lineNum in file";
+            ui->resultBrowser->setPlainText("[File contains invaild line numbers]");
+//            qDebug() << "[INVALID] invaild lineNum in file";
             break;
     }
 }
@@ -396,15 +395,15 @@ void MainWindow::saveFile(const QString &filename)
 {
     if(code->save(filename))
     {
-        ui->resultBrowser->setPlainText("File saved");
-        qDebug() << "[FILE] file saved";
+        ui->resultBrowser->setPlainText("[File saved]");
+//        qDebug() << "[FILE] file saved";
         ui->inputEdit->clear();
         status = INPUT;
     }
     else
     {
-        ui->resultBrowser->setPlainText("Invaild file path, please try again");
-        qDebug() << "[INVALID] invaild file path";
+        ui->resultBrowser->setPlainText("[Invaild file path]");
+//        qDebug() << "[INVALID] invaild file path";
     }
 }
 

@@ -45,9 +45,10 @@ bool Program::parseStatements(const QList<Line> &code)
                 try
                 {
                     newStatement->parse(content.trimmed());
-                } catch (QString)
+                } catch (QString err)
                 {
                     newStatement->isValid = false;
+                    newStatement->errInfo = err;
                     statements.push_back(newStatement);
                     emit printTree(QString::number((*it).lineNum) + " Error\n");
                     continue;
@@ -62,9 +63,10 @@ bool Program::parseStatements(const QList<Line> &code)
                 try
                 {
                     newStatement->parse(content.trimmed());
-                } catch (QString)
+                } catch (QString err)
                 {
                     newStatement->isValid = false;
+                    newStatement->errInfo = err;
                     statements.push_back(newStatement);
                     emit printTree(QString::number((*it).lineNum) + " Error\n");
                     continue;
@@ -79,9 +81,10 @@ bool Program::parseStatements(const QList<Line> &code)
                 try
                 {
                     newStatement->parse(content.trimmed());
-                } catch (QString)
+                } catch (QString err)
                 {
                     newStatement->isValid = false;
+                    newStatement->errInfo = err;
                     statements.push_back(newStatement);
                     emit printTree(QString::number((*it).lineNum) + " Error\n");
                     continue;
@@ -96,9 +99,10 @@ bool Program::parseStatements(const QList<Line> &code)
                 try
                 {
                     newStatement->parse(content.trimmed());
-                } catch (QString)
+                } catch (QString err)
                 {
                     newStatement->isValid = false;
+                    newStatement->errInfo = err;
                     statements.push_back(newStatement);
                     emit printTree(QString::number((*it).lineNum) + " Error\n");
                     continue;
@@ -113,9 +117,10 @@ bool Program::parseStatements(const QList<Line> &code)
                 try
                 {
                     newStatement->parse(content.trimmed());
-                } catch (QString)
+                } catch (QString err)
                 {
                     newStatement->isValid = false;
+                    newStatement->errInfo = err;
                     statements.push_back(newStatement);
                     emit printTree(QString::number((*it).lineNum) + " Error\n");
                     continue;
@@ -136,6 +141,7 @@ bool Program::parseStatements(const QList<Line> &code)
 //        throw QString("Syntax error in Line ") + QString::number((*it).lineNum);
         EndStmt* newStatement = new EndStmt((*it).lineNum);
         newStatement->isValid = false;
+        newStatement->errInfo = "[Syntax error in line " + QString::number((*it).lineNum) + "]\n";
         statements.push_back(newStatement);
         emit printTree(QString::number((*it).lineNum) + " Error\n");
     }
@@ -153,7 +159,7 @@ bool Program::run(QString &input, QString &output)
     while(it != statements.end())
     {
         if(!(*it)->isValid)
-            throw QString("[Syntax Error in Line " + QString::number((*it)->lineNum) + "]");
+            throw (*it)->errInfo;
         int oriPc = pc;
         if((*it)->type == ENDSTMT)
             return true;
@@ -177,7 +183,7 @@ bool Program::run(QString &input, QString &output)
                     break;
             }
             if(it == statements.end())
-                throw QString("Target line does not exist");
+                throw QString("[Target line does not exist in line " + QString::number(oriPc) + "]\n");
         }
     }
     return true;
@@ -186,7 +192,7 @@ bool Program::run(QString &input, QString &output)
 void Program::initialize()
 {
     if(statements.empty())
-        throw QString("No code exist");
+        throw QString("[No code exist]");
 //    evaluationContext.clear();
     pc = statements.first()->lineNum;
 }

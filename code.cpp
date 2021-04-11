@@ -102,7 +102,7 @@ int Code::load(const QString &filename)
     {
         if(line.empty())
             continue;
-        QString Qline = QString::fromStdString(line);
+        QString Qline = QString::fromStdString(line).trimmed();
         bool isNumber = true;
         int numEnd = -1;
         int len = Qline.size();
@@ -124,12 +124,19 @@ int Code::load(const QString &filename)
         QString num = Qline.left(numEnd + 1);
         if(isNumber)
         {
-            if(numEnd == len - 1)
-                return -2;
             int lineNum = num.toInt();
+            if(numEnd == len - 1)
+            {
+                if(del(lineNum) && lineNum <= 1000000 && lineNum >= 1)
+                    continue;
+                else
+                    return -2;
+            }
             Line in(lineNum, Qline.mid(numEnd + 2));
-            qDebug() << "[insert]" << lineNum << ',' << in.code;
-            if(!insert(in))
+    //        qDebug() << "[insert]" << lineNum << ',' << in.code;
+            if(insert(in) && lineNum <= 1000000 && lineNum >= 1)
+                continue;
+            else
                 return -2;
         }
     }

@@ -18,7 +18,7 @@ bool LetStmt::parse(const QString &code)
 
     if(end < 0)
     {
-        throw QString("Syntax error in Line ") + QString::number(lineNum);
+        throw QString("[Syntax error in line ") + QString::number(lineNum) + "]\n";
     }
 
     var = content.left(end + 1).trimmed();
@@ -90,7 +90,7 @@ bool InputStmt::run(EvaluationContext &evaluationContext, int &pc, QString &inpu
         QString numberString = input.left(numEnd + 1);
         input = input.mid(numEnd + 2);
         if(!isIntNumber(numberString))
-            throw QString("Invalid input. Please input an int");
+            throw QString("[Invalid input. Please input an int]");
         evaluationContext.setValue(var->toString(), numberString.toInt());
         return true;
     }
@@ -100,10 +100,10 @@ bool InputStmt::run(EvaluationContext &evaluationContext, int &pc, QString &inpu
 bool GotoStmt::parse(const QString &code)
 {
     if(!isIntNumber(code))
-        throw QString("Target position should be an IMMEDIATE in Line ") + QString::number(lineNum);
+        throw QString("[Target position should be an IMMEDIATE in line " + QString::number(lineNum) + "]\n");
     int target = code.toInt();
     if(target < 0)
-        throw QString("Target position should be positive in Line ") + QString::number(lineNum);
+        throw QString("[Target position should be positive in line " + QString::number(lineNum) + "]\n");
     targetPC = target;
     return true;
 }
@@ -128,10 +128,9 @@ bool IfStmt::parse(const QString &code)
         }
     }
 
-    qDebug()<<"???";
     if(op <= 0)
     {
-        throw QString("Syntax error in Line ") + QString::number(lineNum);
+        throw QString("[Syntax error in line " + QString::number(lineNum) + "]\n");
     }
 
     compareOp = content[op];
@@ -151,16 +150,16 @@ bool IfStmt::parse(const QString &code)
     if(op <= 0)
     {
 //        throw int(1);
-        throw QString(QString("Syntax error in Line ") + QString::number(lineNum));
+        throw QString("[Syntax error in line " + QString::number(lineNum) + "]\n");
     }
     rExp = new CompoundExp(content.left(op).trimmed());
     content = content.mid(op + 4).trimmed();
 
     if(!isIntNumber(content))
-        throw QString("Target position should be int in Line ");
+        throw QString("[Target position should be int in line " + QString::number(lineNum) + "]\n");
     int target = content.toInt();
     if(target < 0)
-        throw QString("Target position should be positive in Line ");
+        throw QString("[Target position should be positive in line " + QString::number(lineNum) + "]\n");
     targetPC = target;
     return true;
 }

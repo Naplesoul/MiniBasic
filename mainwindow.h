@@ -55,6 +55,9 @@ private:
 
     bool isSingleCmd = false;
 
+
+    QString helpText = "";
+
 signals:
     void quitSignal();
 };

@@ -26,7 +26,6 @@ enum Operator
 };
 
 
-
 //enum CompareOperator
 //{
 //    EQUAL, LESS, MORE

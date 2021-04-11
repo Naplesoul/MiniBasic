@@ -16,10 +16,13 @@ public:
     int lineNum;
     StatementType type;
 
-    virtual bool parse(const QString &code){}
-    virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){}
-    virtual QString printTree(){}
+    virtual bool parse(const QString &code) = 0;
+    virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output) = 0;
+    virtual QString printTree() = 0;
+
     bool isValid = true;
+    QString errInfo = "";
+
     bool isIntNumber(const QString &s)
     {
         int len = s.length();
@@ -38,6 +41,9 @@ class RemStmt : public Statement
 {
 public:
     RemStmt(int l){lineNum = l, type = REMSTMT;}
+    bool parse(const QString &code){return true;}
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){return true;}
+    QString printTree(){return "";}
     ~RemStmt(){}
 };
 
@@ -131,6 +137,9 @@ class EndStmt : public Statement
 {
 public:
     EndStmt(int l){lineNum = l, type = ENDSTMT;}
+    bool parse(const QString &code){return true;}
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){return true;}
+    QString printTree(){return "";}
     ~EndStmt(){}
 };
 
