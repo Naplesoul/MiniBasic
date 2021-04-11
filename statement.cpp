@@ -100,10 +100,10 @@ bool InputStmt::run(EvaluationContext &evaluationContext, int &pc, QString &inpu
 bool GotoStmt::parse(const QString &code)
 {
     if(!isIntNumber(code))
-        throw QString("Target position should be int in Line ");
+        throw QString("Target position should be an IMMEDIATE in Line ") + QString::number(lineNum);
     int target = code.toInt();
     if(target < 0)
-        throw QString("Target position should be positive in Line ");
+        throw QString("Target position should be positive in Line ") + QString::number(lineNum);
     targetPC = target;
     return true;
 }

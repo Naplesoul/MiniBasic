@@ -42,6 +42,8 @@ private:
     void loadFile(const QString &filename);
     void saveFile(const QString &filename);
     void runCode();
+    void runSingle(QString &cmd);
+    void runSingleCode();
 
     void handleInput();
     bool input(QString &input);
@@ -50,6 +52,8 @@ private:
     void programInput(QString &input);
 //    void print(QString &output);
     void printTree(QString output);
+
+    bool isSingleCmd = false;
 
 signals:
     void quitSignal();

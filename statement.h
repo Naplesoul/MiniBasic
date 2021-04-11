@@ -19,6 +19,7 @@ public:
     virtual bool parse(const QString &code){}
     virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){}
     virtual QString printTree(){}
+    bool isValid = true;
     bool isIntNumber(const QString &s)
     {
         int len = s.length();

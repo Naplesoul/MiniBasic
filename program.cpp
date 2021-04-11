@@ -42,7 +42,16 @@ bool Program::parseStatements(const QList<Line> &code)
             else if(fun == "LET")
             {
                 LetStmt* newStatement = new LetStmt((*it).lineNum);
-                newStatement->parse(content.trimmed());
+                try
+                {
+                    newStatement->parse(content.trimmed());
+                } catch (QString)
+                {
+                    newStatement->isValid = false;
+                    statements.push_back(newStatement);
+                    emit printTree(QString::number((*it).lineNum) + " Error\n");
+                    continue;
+                }
                 statements.push_back(newStatement);
                 emit printTree(newStatement->printTree());
                 continue;
@@ -50,7 +59,16 @@ bool Program::parseStatements(const QList<Line> &code)
             else if(fun == "PRINT")
             {
                 PrintStmt* newStatement = new PrintStmt((*it).lineNum);
-                newStatement->parse(content.trimmed());
+                try
+                {
+                    newStatement->parse(content.trimmed());
+                } catch (QString)
+                {
+                    newStatement->isValid = false;
+                    statements.push_back(newStatement);
+                    emit printTree(QString::number((*it).lineNum) + " Error\n");
+                    continue;
+                }
                 statements.push_back(newStatement);
                 emit printTree(newStatement->printTree());
                 continue;
@@ -58,7 +76,16 @@ bool Program::parseStatements(const QList<Line> &code)
             else if(fun == "INPUT")
             {
                 InputStmt* newStatement = new InputStmt((*it).lineNum);
-                newStatement->parse(content.trimmed());
+                try
+                {
+                    newStatement->parse(content.trimmed());
+                } catch (QString)
+                {
+                    newStatement->isValid = false;
+                    statements.push_back(newStatement);
+                    emit printTree(QString::number((*it).lineNum) + " Error\n");
+                    continue;
+                }
                 statements.push_back(newStatement);
                 emit printTree(newStatement->printTree());
                 continue;
@@ -66,7 +93,16 @@ bool Program::parseStatements(const QList<Line> &code)
             else if(fun == "GOTO")
             {
                 GotoStmt* newStatement = new GotoStmt((*it).lineNum);
-                newStatement->parse(content.trimmed());
+                try
+                {
+                    newStatement->parse(content.trimmed());
+                } catch (QString)
+                {
+                    newStatement->isValid = false;
+                    statements.push_back(newStatement);
+                    emit printTree(QString::number((*it).lineNum) + " Error\n");
+                    continue;
+                }
                 statements.push_back(newStatement);
                 emit printTree(newStatement->printTree());
                 continue;
@@ -74,7 +110,16 @@ bool Program::parseStatements(const QList<Line> &code)
             else if(fun == "IF")
             {
                 IfStmt* newStatement = new IfStmt((*it).lineNum);
-                newStatement->parse(content.trimmed());
+                try
+                {
+                    newStatement->parse(content.trimmed());
+                } catch (QString)
+                {
+                    newStatement->isValid = false;
+                    statements.push_back(newStatement);
+                    emit printTree(QString::number((*it).lineNum) + " Error\n");
+                    continue;
+                }
                 statements.push_back(newStatement);
                 emit printTree(newStatement->printTree());
                 continue;
@@ -88,7 +133,11 @@ bool Program::parseStatements(const QList<Line> &code)
             }
         }
 //        throw int(1);
-        throw QString("Syntax error in Line ") + QString::number((*it).lineNum);
+//        throw QString("Syntax error in Line ") + QString::number((*it).lineNum);
+        EndStmt* newStatement = new EndStmt((*it).lineNum);
+        newStatement->isValid = false;
+        statements.push_back(newStatement);
+        emit printTree(QString::number((*it).lineNum) + " Error\n");
     }
     return true;
 }
@@ -103,6 +152,8 @@ bool Program::run(QString &input, QString &output)
     }
     while(it != statements.end())
     {
+        if(!(*it)->isValid)
+            throw QString("[Syntax Error in Line " + QString::number((*it)->lineNum) + "]");
         int oriPc = pc;
         if((*it)->type == ENDSTMT)
             return true;
@@ -120,7 +171,7 @@ bool Program::run(QString &input, QString &output)
         else
         {
             // move it to target pc
-            for(; it != statements.end(); ++it)
+            for(it = statements.begin(); it != statements.end(); ++it)
             {
                 if((*it)->lineNum == pc)
                     break;
@@ -136,6 +187,11 @@ void Program::initialize()
 {
     if(statements.empty())
         throw QString("No code exist");
-    evaluationContext.clear();
+//    evaluationContext.clear();
     pc = statements.first()->lineNum;
+}
+
+void Program::clearContext()
+{
+    evaluationContext.clear();
 }

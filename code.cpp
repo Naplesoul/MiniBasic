@@ -103,7 +103,7 @@ int Code::load(const QString &filename)
         if(line.empty())
             continue;
         QString Qline = QString::fromStdString(line);
-        bool isNumber = false;
+        bool isNumber = true;
         int numEnd = -1;
         int len = Qline.size();
         for(int i = 0; i < len; ++i)
@@ -118,9 +118,7 @@ int Code::load(const QString &filename)
                 numEnd = i - 1;
                 break;
             }
-            if(Qline[i] <= '9' && Qline[i] >= '0')
-                isNumber = true;
-            else
+            if(Qline[i] > '9' || Qline[i] < '0')
                 isNumber = false;
         }
         QString num = Qline.left(numEnd + 1);

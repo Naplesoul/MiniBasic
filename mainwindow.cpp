@@ -46,13 +46,13 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
              }
              if(k->key() == Qt::Key_Return)
              {
-                 qDebug() << "[KEY] enter pressed";
+//                 qDebug() << "[KEY] enter pressed";
                  handleInput();
                  return true;
              }
              if(k->key() == Qt::Key_Delete)
              {
-                 qDebug() << "[KEY] delete pressed";
+//                 qDebug() << "[KEY] delete pressed";
                  ui->inputEdit->clear();
                  return true;
              }
@@ -91,13 +91,13 @@ void MainWindow::handleInput()
             if(input(in))
             {
                 ui->codeBrowser->setPlainText(code->printCode());
-                qDebug() << "[VALID] input accepted\n[inputEdit] clear";
+//                qDebug() << "[VALID] input accepted\n[inputEdit] clear";
                 ui->inputEdit->clear();
             }
             else
             {
-                qDebug() << "[INVAILD] invalid input";
-                ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
+//                qDebug() << "[INVAILD] invalid input";
+                ui->resultBrowser->setPlainText("[Invaild input]\n[Press del to clear input]");
             }
             break;
         default:
@@ -107,7 +107,8 @@ void MainWindow::handleInput()
 
 bool MainWindow::input(QString &input)
 {
-    bool isNumber = false;
+    input = input.trimmed();
+    bool isNumber = true;
     int cmdEnd = -1;
     int len = input.size();
     for(int i = 0; i < len; ++i)
@@ -122,27 +123,45 @@ bool MainWindow::input(QString &input)
             cmdEnd = i - 1;
             break;
         }
-        if(input[i] <= '9' && input[i] >= '0')
-            isNumber = true;
-        else
+        if(input[i] > '9' || input[i] < '0')
             isNumber = false;
     }
     QString cmd = input.left(cmdEnd + 1);
     if(isNumber)
     {
-        if(cmdEnd == len - 1)
-            return false;
         int lineNum = cmd.toInt();
-        Line in(lineNum, input.mid(cmdEnd + 2));
-        qDebug() << "[insert]" << lineNum << ',' << in.code;
-        if(code->insert(in))
+        if(cmdEnd == len - 1)
         {
-            QString message = "Line " + cmd + " inserted";
+            if(code->del(lineNum) && lineNum <= 1000000 && lineNum >= 1)
+            {
+                QString message = "[Line" + input.mid(cmdEnd + 1) + " deleted]";
+//                qDebug() << "[VAILD] valid delete";
+                updateCodeBrowser();
+                ui->resultBrowser->setPlainText(message);
+                return true;
+            }
+            else
+            {
+//                qDebug() << "[INVAILD] invalid input";
+//                ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
+                return false;
+            }
+        }
+
+        Line in(lineNum, input.mid(cmdEnd + 2));
+//        qDebug() << "[insert]" << lineNum << ',' << in.code;
+        if(code->insert(in) && lineNum <= 1000000 && lineNum >= 1)
+        {
+            QString message = "[Line " + cmd + " inserted]";
             ui->resultBrowser->setPlainText(message);
             return true;
         }
         else
+        {
+//            qDebug() << "[INVAILD] invalid input";
+//            ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
             return false;
+        }
     }
     if(cmd == "RUN")
     {
@@ -194,7 +213,14 @@ bool MainWindow::input(QString &input)
         {
             qDebug() << "[INVAILD] invalid input";
             ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
+            return false;
         }
+    }
+    if(cmd == "LET" || cmd == "PRINT" || cmd == "INPUT")
+    {
+        isSingleCmd = true;
+        runSingle(input);
+        return true;
     }
     return false;
 }
@@ -206,11 +232,11 @@ void MainWindow::run()
     ui->treeBrowser->clear();
     inputOfProgram.clear();
     outputOfProgram.clear();
-
     try
     {
         program->parseStatements(code->getCode());
         program->initialize();
+//        program->clearContext();
     }
     catch(QString err)
     {
@@ -245,7 +271,63 @@ void MainWindow::runCode()
         ui->inputEdit->setFocus();
         return;
     }
+    inputOfProgram.clear();
+    outputOfProgram.clear();
+    program->clearContext();
+    ui->inputEdit->setFocus();
+}
 
+void MainWindow::runSingle(QString &cmd)
+{
+    status = RUN;
+    ui->resultBrowser->clear();
+    ui->treeBrowser->clear();
+    inputOfProgram.clear();
+    outputOfProgram.clear();
+    QList<Line> singleCmd;
+    singleCmd.push_back(Line(1, cmd));
+    try
+    {
+        program->parseStatements(singleCmd);
+        program->initialize();
+        runSingleCode();
+    }
+    catch(QString)
+    {
+        ui->resultBrowser->setPlainText("Invalid Command!");
+        status = INPUT;
+        ui->inputEdit->setFocus();
+        return;
+    }
+    ui->inputEdit->setFocus();
+}
+
+void MainWindow::runSingleCode()
+{
+    try
+    {
+        if(program->run(inputOfProgram, outputOfProgram))
+        {
+            outputOfProgram += "\n[Command executed successfully]";
+            ui->resultBrowser->setPlainText(outputOfProgram);
+            status = INPUT;
+            isSingleCmd = false;
+        }
+        else
+        {
+            status = WAIT_FOR_INPUT;
+            ui->resultBrowser->setPlainText("Ask for input");
+        }
+    }
+    catch(QString)
+    {
+        ui->resultBrowser->setPlainText("Invalid Command!");
+        status = INPUT;
+        ui->inputEdit->setFocus();
+        return;
+    }
+    inputOfProgram.clear();
+    outputOfProgram.clear();
     ui->inputEdit->setFocus();
 }
 
@@ -254,12 +336,16 @@ void MainWindow::programInput(QString &input)
     inputOfProgram += " " + input;
     status = RUN;
     ui->inputEdit->clear();
-    runCode();
+    if(isSingleCmd)
+        runSingleCode();
+    else
+        runCode();
 }
 
 void MainWindow::clearCode()
 {
     code->clear();
+    ui->treeBrowser->clear();
     updateCodeBrowser();
     ui->resultBrowser->setPlainText("Code cleared");
     ui->inputEdit->setFocus();
@@ -287,6 +373,7 @@ void MainWindow::loadFile(const QString &filename)
         // normal case
         case 0:
             updateCodeBrowser();
+            ui->treeBrowser->clear();
             ui->resultBrowser->setPlainText("File loaded");
             qDebug() << "[FILE] file loaded";
             ui->inputEdit->clear();
@@ -298,6 +385,7 @@ void MainWindow::loadFile(const QString &filename)
             break;
         // file contains errors
         case -2:
+            ui->treeBrowser->clear();
             ui->resultBrowser->setPlainText("File contains invaild line numbers, please revise");
             qDebug() << "[INVALID] invaild lineNum in file";
             break;
@@ -349,6 +437,7 @@ void MainWindow::clear()
 {
     status = CLEAR;
     clearCode();
+    program->clearContext();
     status = INPUT;
 }
 

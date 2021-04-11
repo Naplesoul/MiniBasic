@@ -16,7 +16,7 @@ public:
     bool run(QString &input, QString &output);
 
     void initialize();
-
+    void clearContext();
 private:
     QList<Statement*> statements;
     EvaluationContext evaluationContext;
