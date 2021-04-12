@@ -1,7 +1,0 @@
-#include "codeedit.h"
-
-CodeEdit::CodeEdit(QObject *parent) : QObject(parent)
-{
-    setParent(parent);
-    codeBuffer = new CodeBuffer;
-}
