@@ -141,7 +141,7 @@ int CompoundExp::findNearestOp(const QString &content)
 
 CompoundExp::CompoundExp(QString content)
 {
-    qDebug() << content <<'\n';
+//    qDebug() << content <<'\n';
     QList<Expression*> expression;
     QStack<Expression*> operators;
     QStack<Expression*> operands;
@@ -165,7 +165,7 @@ CompoundExp::CompoundExp(QString content)
             continue;
         }
         QString newExp = content.left(opPosition).trimmed();
-        qDebug() << newExp <<'\n';
+//        qDebug() << newExp <<'\n';
         if(newExp != "")
         {
             if(isIntNumber(newExp))
@@ -184,7 +184,7 @@ CompoundExp::CompoundExp(QString content)
         expression.push_back(new CompoundExp(op, nullptr, nullptr));
         opPosition = findNearestOp(content);
     }
-    qDebug() << content <<'\n';
+//    qDebug() << content <<'\n';
     // handle the last expression
     if(content.length() > 0)
     {

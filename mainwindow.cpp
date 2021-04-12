@@ -206,14 +206,14 @@ bool MainWindow::input(QString &input)
         if(code->del(lineNum))
         {
             QString message = "[Line" + input.mid(cmdEnd + 1) + " deleted]";
-            qDebug() << "[VAILD] valid delete";
+//            qDebug() << "[VAILD] valid delete";
             updateCodeBrowser();
             ui->resultBrowser->setPlainText(message);
             return true;
         }
         else
         {
-            qDebug() << "[INVAILD] invalid input";
+//            qDebug() << "[INVAILD] invalid input";
             return false;
         }
     }
@@ -274,7 +274,6 @@ void MainWindow::runCode()
     }
     inputOfProgram.clear();
     outputOfProgram.clear();
-    program->clearContext();
     ui->inputEdit->setFocus();
 }
 
@@ -346,7 +345,7 @@ void MainWindow::clearCode()
     code->clear();
     ui->treeBrowser->clear();
     updateCodeBrowser();
-    ui->resultBrowser->setPlainText("[Code cleared]");
+    ui->resultBrowser->setPlainText("[Code & context cleared]");
     ui->inputEdit->setFocus();
 }
 
