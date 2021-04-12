@@ -84,10 +84,10 @@ void MainWindow::handleInput()
             programInput(in);
             break;
         case RUN:
-            ui->resultBrowser->setText("Running now, please wait...");
+            ui->resultBrowser->setText("[Running now, please wait...]");
             break;
         case CLEAR:
-            ui->resultBrowser->setText("clearing now, please wait...");
+            ui->resultBrowser->setText("[Clearing now, please wait...]");
             break;
         case INPUT:
             if(input(in))
@@ -99,7 +99,7 @@ void MainWindow::handleInput()
             else
             {
 //                qDebug() << "[INVAILD] invalid input";
-                ui->resultBrowser->setPlainText("[Invaild input. Press del to clear input]");
+                ui->resultBrowser->setPlainText("[Invaild input]\n[Press del to clear input]");
             }
             break;
         default:

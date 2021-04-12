@@ -1,0 +1,19 @@
+#ifndef CODEEDIT_H
+#define CODEEDIT_H
+
+#include <QObject>
+#include "codebuffer.h"
+
+class CodeEdit : public QObject
+{
+    Q_OBJECT
+private:
+    CodeBuffer *codeBuffer;
+public:
+    explicit CodeEdit(QObject *parent = nullptr);
+
+signals:
+
+};
+
+#endif // CODEEDIT_H
