@@ -6,7 +6,7 @@ Please install the font before use.
 
 #### Example:
 
-![](.\example.png)
+![](https://raw.githubusercontent.com/Naplesoul/MiniBasic/main/example.png)
 
 #### Usage
 
