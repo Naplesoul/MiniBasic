@@ -33,7 +33,7 @@ bool LetStmt::parse(const QString &code)
     }
     catch(QString err)
     {
-        throw err + QString::number(lineNum);
+        throw QString(err + QString::number(lineNum) + "]\n");
     }
 
     exp = new CompoundExp("=", lhs, rhs);
@@ -41,7 +41,7 @@ bool LetStmt::parse(const QString &code)
     return true;
 }
 
-bool LetStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
+bool LetStmt::run(EvaluationContext &evaluationContext, int &, QString &, QString &)
 {
     evaluationContext.setValue(exp->getLHS()->toString(), exp->getRHS()->eval(evaluationContext));
     return true;
@@ -49,11 +49,18 @@ bool LetStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input,
 
 bool PrintStmt::parse(const QString &code)
 {
-    exp = new CompoundExp(code);
+    try
+    {
+        exp = new CompoundExp(code);
+    }
+    catch(QString err)
+    {
+        throw QString(err + QString::number(lineNum) + "]\n");
+    }
     return true;
 }
 
-bool PrintStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
+bool PrintStmt::run(EvaluationContext &evaluationContext, int &, QString &, QString &output)
 {
     int val = exp->eval(evaluationContext);
     output += QString::number(val) + "\n";
@@ -66,7 +73,7 @@ bool InputStmt::parse(const QString &code)
     return true;
 }
 
-bool InputStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
+bool InputStmt::run(EvaluationContext &evaluationContext, int &, QString &input, QString &)
 {
     input = input.trimmed();
     if(input.isEmpty())
@@ -108,7 +115,7 @@ bool GotoStmt::parse(const QString &code)
     return true;
 }
 
-bool GotoStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
+bool GotoStmt::run(EvaluationContext &, int &pc, QString &, QString &)
 {
     pc = targetPC;
     return true;
@@ -134,7 +141,15 @@ bool IfStmt::parse(const QString &code)
     }
 
     compareOp = content[op];
-    lExp = new CompoundExp(content.left(op).trimmed());
+    try
+    {
+        lExp = new CompoundExp(content.left(op).trimmed());
+    }
+    catch(QString err)
+    {
+        throw QString(err + QString::number(lineNum) + "]\n");
+    }
+
     content = content.mid(op + 1).trimmed();
     len = content.length();
     op = -1;
@@ -152,7 +167,15 @@ bool IfStmt::parse(const QString &code)
 //        throw int(1);
         throw QString("[Syntax error in line " + QString::number(lineNum) + "]\n");
     }
-    rExp = new CompoundExp(content.left(op).trimmed());
+    try
+    {
+        rExp = new CompoundExp(content.left(op).trimmed());
+    }
+    catch(QString err)
+    {
+        throw QString(err + QString::number(lineNum) + "]\n");
+    }
+
     content = content.mid(op + 4).trimmed();
 
     if(!isIntNumber(content))
@@ -164,7 +187,7 @@ bool IfStmt::parse(const QString &code)
     return true;
 }
 
-bool IfStmt::run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output)
+bool IfStmt::run(EvaluationContext &evaluationContext, int &pc, QString &, QString &)
 {
     int left = lExp->eval(evaluationContext);
     int right = rExp->eval(evaluationContext);

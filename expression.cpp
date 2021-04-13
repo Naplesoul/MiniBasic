@@ -6,14 +6,6 @@
 
 void EvaluationContext::setValue(QString var, int value)
 {
-//    if(isDefined(var))
-//    {
-//        symbolTable.remove(var);
-//        symbolTable.insert(var, value);
-//    }
-//    else
-//        symbolTable.insert(var, value);
-
     symbolTable[var] = value;
 }
 
@@ -33,7 +25,7 @@ bool EvaluationContext::isDefined(QString var)
     return false;
 }
 
-int ConstantExp::eval(EvaluationContext & context)
+int ConstantExp::eval(EvaluationContext &)
 {
    return value;
 }
@@ -60,7 +52,7 @@ QString IdentifierExp::toTree(int layer)
 int IdentifierExp::eval(EvaluationContext & context)
 {
    if (!context.isDefined(name))
-       throw QString(name + " is undefined");
+       throw QString("[" + name + " is undefined]\n");
    return context.getValue(name);
 }
 
@@ -85,23 +77,22 @@ int CompoundExp::eval(EvaluationContext & context)
       return right;
    }
 
-
    if (op == "+") return left + right;
    if (op == "-") return left - right;
    if (op == "*") return left * right;
    if (op == "/") {
-      if (right == 0) throw QString("Division by 0");
+      if (right == 0) throw QString("[Division by 0]\n");
       return left / right;
    }
    if (op == "**") return pow(left, right);
-   throw QString("Illegal operator in expression");
+   throw QString("[Illegal operator in expression]\n");
    return 0;
 }
 
 IdentifierExp::IdentifierExp(const QString &var)
 {
     if(!isValidVarName(var))
-        throw QString("Invalid variable name in Line ");
+        throw QString("[Invalid variable name " + var + "]\n");
     name = var;
 }
 
@@ -141,13 +132,15 @@ int CompoundExp::findNearestOp(const QString &content)
 
 CompoundExp::CompoundExp(QString content)
 {
-//    qDebug() << content <<'\n';
     QList<Expression*> expression;
     QStack<Expression*> operators;
     QStack<Expression*> operands;
 
+    if(content.count("(") != content.count(")"))
+        throw QString("[Syntax error in line ");
+
     if(content.contains('='))
-        throw QString("Syntax error in Line ");
+        throw QString("[Syntax error in line ");
     // find the first operator
     int opPosition = findNearestOp(content);
     // push all the expressions into QList expression
@@ -157,15 +150,17 @@ CompoundExp::CompoundExp(QString content)
         // "-X" = "0 - X"
         if(opPosition == 0 && op == "-" && (expression.isEmpty() || (expression.last()->type() == COMPOUND && expression.last()->getOperator() == "(")))
         {
+            content = content.mid(opPosition + 1).trimmed();
+            opPosition = findNearestOp(content);
+            if(opPosition == -1 || content[opPosition] == ')')
+                throw QString("[Syntax error in line ");
+
             expression.push_back(new ConstantExp(0));
             expression.push_back(new CompoundExp("-", nullptr, nullptr));
 
-            content = content.mid(opPosition + 1).trimmed();
-            opPosition = findNearestOp(content);
             continue;
         }
         QString newExp = content.left(opPosition).trimmed();
-//        qDebug() << newExp <<'\n';
         if(newExp != "")
         {
             if(isIntNumber(newExp))
@@ -184,7 +179,6 @@ CompoundExp::CompoundExp(QString content)
         expression.push_back(new CompoundExp(op, nullptr, nullptr));
         opPosition = findNearestOp(content);
     }
-//    qDebug() << content <<'\n';
     // handle the last expression
     if(content.length() > 0)
     {
@@ -214,22 +208,11 @@ CompoundExp::CompoundExp(QString content)
                     while(operators.top()->getOperator() != "(")
                     {
                         Expression *pop = operators.pop();
-
-//                        if(pop->getOperator() == "--")
-//                        {
-//                            if(operands.empty())
-//                                throw QString("Syntax error in Line ");
-//                            pop->setRHS(operands.pop());
-//                            pop->setLHS(new ConstantExp(0));
-//                            pop->setOp("-");
-//                            operands.push(pop);
-//                            continue;
-//                        }
                         if(operands.empty())
-                            throw QString("Syntax error in Line ");
+                            throw QString("[Syntax error in line ");
                         pop->setRHS(operands.pop());
                         if(operands.empty())
-                            throw QString("Syntax error in Line ");
+                            throw QString("[Syntax error in line ");
                         pop->setLHS(operands.pop());
                         operands.push(pop);
                     }
@@ -243,22 +226,11 @@ CompoundExp::CompoundExp(QString content)
                 while(!operators.empty() && operators.top()->precedence() >= precedence)
                 {
                     Expression *pop = operators.pop();
-
-//                    if(pop->getOperator() == "--")
-//                    {
-//                        if(operands.empty())
-//                            throw QString("Syntax error in Line ");
-//                        pop->setRHS(operands.pop());
-//                        pop->setLHS(new ConstantExp(0));
-//                        pop->setOp("-");
-//                        operands.push(pop);
-//                        continue;
-//                    }
                     if(operands.empty())
-                        throw QString("Syntax error in Line ");
+                        throw QString("[Syntax error in line ");
                     pop->setRHS(operands.pop());
                     if(operands.empty())
-                        throw QString("Syntax error in Line ");
+                        throw QString("[Syntax error in line ");
                     pop->setLHS(operands.pop());
                     operands.push(pop);
                 }
@@ -274,31 +246,19 @@ CompoundExp::CompoundExp(QString content)
     while(!operators.empty())
     {
         Expression *pop = operators.pop();
-
-//        if(pop->getOperator() == "--")
-//        {
-//            if(operands.empty())
-//                throw QString("Syntax error in Line ");
-//            pop->setRHS(operands.pop());
-//            pop->setLHS(new ConstantExp(0));
-//            pop->setOp("-");
-//            operands.push(pop);
-//            continue;
-//        }
-
         if(operands.empty())
-            throw QString("Syntax error in Line ");
+            throw QString("[Syntax error in line ");
         pop->setRHS(operands.pop());
         if(operands.empty())
-            throw QString("Syntax error in Line ");
+            throw QString("[Syntax error in line ");
         pop->setLHS(operands.pop());
         operands.push(pop);
     }
     if(operands.empty())
-        throw QString("Syntax error in Line ");
+        throw QString("[Syntax error in line ");
     rhs = operands.pop();
     if(!operands.empty())
-        throw QString("Syntax error in Line ");
+        throw QString("[Syntax error in line ");
 }
 
 int CompoundExp::precedence()

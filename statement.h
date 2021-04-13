@@ -41,8 +41,8 @@ class RemStmt : public Statement
 {
 public:
     RemStmt(int l){lineNum = l, type = REMSTMT;}
-    bool parse(const QString &code){return true;}
-    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){return true;}
+    bool parse(const QString &){return true;}
+    bool run(EvaluationContext &, int &, QString &, QString &){return true;}
     QString printTree(){return "";}
     ~RemStmt(){}
 };
@@ -137,8 +137,8 @@ class EndStmt : public Statement
 {
 public:
     EndStmt(int l){lineNum = l, type = ENDSTMT;}
-    bool parse(const QString &code){return true;}
-    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output){return true;}
+    bool parse(const QString &){return true;}
+    bool run(EvaluationContext &, int &, QString &, QString &){return true;}
     QString printTree(){return "";}
     ~EndStmt(){}
 };

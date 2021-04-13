@@ -6,6 +6,7 @@
 #include <QObject>
 #include "initialize.h"
 
+// a line of code, with a line number and a QString contains code
 struct Line
 {
     int lineNum;
@@ -14,30 +15,35 @@ struct Line
     Line(int n, QString c): lineNum(n), code(c){}
 };
 
+// store lines of code in codeList
 class CodeBuffer
 {
 private:
-    int currentLineNum = 0;
     QList<Line> codeList;
 
 public:
     CodeBuffer();
     ~CodeBuffer();
 
+// get the number of lines stored in the buffer
     int size();
 
+// delete a line, returns whether the operation is successful
     bool deleteLine(int lineNum);
+
+// insert a line, returns whether the operation is successful
     bool insertLine(const Line &text);
 
+// get all code in a QString
     QString printCode();
     void clear();
 
+// get all code in a QList of Line
     const QList<Line>& getCode() const;
 };
 
 
-
-
+// QObject class interacts with MainWindow, contains CodeBuffer
 class Code : public QObject
 {
     Q_OBJECT
@@ -53,11 +59,6 @@ public:
     void clear();
     QString printCode();
     const QList<Line>& getCode() const;
-
-signals:
-    void print(QString);
-    void quit();
-
 };
 
 #endif // CODE_H

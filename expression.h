@@ -7,11 +7,10 @@
 
 using namespace std;
 
+// contains value for variables
 class EvaluationContext
 {
-
 public:
-
     void setValue(QString var, int value);
     int getValue(QString var);
     bool isDefined(QString var);
@@ -24,6 +23,7 @@ private:
 };
 
 
+// super class for all kinds of expressions
 class Expression
 {
 public:
@@ -40,9 +40,9 @@ public:
     virtual QString getOperator(){return "";}
     virtual Expression *getLHS(){return nullptr;}
     virtual Expression *getRHS(){return nullptr;}
-    virtual void setLHS(Expression *lhs){}
-    virtual void setRHS(Expression *rhs){}
-    virtual void setOp(const QString &o){}
+    virtual void setLHS(Expression *){};
+    virtual void setRHS(Expression *){}
+    virtual void setOp(const QString &){}
 
     bool isIntNumber(const QString &s)
     {
