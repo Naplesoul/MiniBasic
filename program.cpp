@@ -33,7 +33,6 @@ bool Program::parseStatements(const QList<Line> &code)
 
             if(fun == "REM")
             {
-//                statements.push_back(RemStmt((*it).lineNum));
                 tree += QString::number((*it).lineNum) + " REM\n";
                 tree += "\t" + (*it).code;
                 emit printTree(tree);
@@ -137,8 +136,6 @@ bool Program::parseStatements(const QList<Line> &code)
                 continue;
             }
         }
-//        throw int(1);
-//        throw QString("Syntax error in Line ") + QString::number((*it).lineNum);
         EndStmt* newStatement = new EndStmt((*it).lineNum);
         newStatement->isValid = false;
         newStatement->errInfo = "[Syntax error in line " + QString::number((*it).lineNum) + "]\n";
@@ -193,7 +190,6 @@ void Program::initialize()
 {
     if(statements.empty())
         throw QString("[No code exist]");
-//    evaluationContext.clear();
     pc = statements.first()->lineNum;
 }
 

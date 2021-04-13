@@ -30,6 +30,7 @@ public:
     Expression(){}
     virtual ~Expression(){}
     virtual int eval(EvaluationContext & context) = 0;
+// get syntax tree in a QString
     virtual QString toTree(int layer) = 0;
     virtual QString toString() = 0;
     virtual ExpressionType type() = 0;

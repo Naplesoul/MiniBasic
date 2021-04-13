@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(program, &Program::printTree, this, &MainWindow::printTree);
 }
 
-// filter shortcut keys: ctrl+L, ctrl+S
+// filter shortcut keys: ctrl+L: LOAD, ctrl+S: SAVE, Ctrl+R: RUN, Ctrl+Del: Delete
 bool MainWindow::eventFilter(QObject *target, QEvent *event)
 {
     if(target == ui->inputEdit)
@@ -44,31 +44,16 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                     case (Qt::Key_R):
                         run();
                         return true;
+                    case (Qt::Key_Delete):
+                        ui->inputEdit->clear();
+                        return true;
                  }
              }
              if(k->key() == Qt::Key_Return)
              {
-//                 qDebug() << "[KEY] enter pressed";
                  handleInput();
                  return true;
              }
-             if(k->key() == Qt::Key_Delete)
-             {
-//                 qDebug() << "[KEY] delete pressed";
-                 ui->inputEdit->clear();
-                 return true;
-             }
-//             if(k->key() == Qt::Key_Escape)
-//             {
-//                 qDebug() << "[KEY] esc pressed";
-//                 if(opType == SAVE || opType == LOAD)
-//                 {
-//                     opType = INPUT;
-//                     ui->resultBrowser->setPlainText("Exit saving/loading mode.\nPlease input command");
-//                     return true;
-//                 }
-//                 return false;
-//             }
         }
     }
     return false;
@@ -93,14 +78,10 @@ void MainWindow::handleInput()
             if(input(in))
             {
                 ui->codeBrowser->setPlainText(code->printCode());
-//                qDebug() << "[VALID] input accepted\n[inputEdit] clear";
                 ui->inputEdit->clear();
             }
             else
-            {
-//                qDebug() << "[INVAILD] invalid input";
-                ui->resultBrowser->setPlainText("[Invaild input]\n[Press del to clear input]");
-            }
+                ui->resultBrowser->setPlainText("[Invaild input]\n[Press Ctrl + Del to clear input]");
             break;
         default:
             return;
@@ -113,6 +94,7 @@ bool MainWindow::input(QString &input)
     bool isNumber = true;
     int cmdEnd = -1;
     int len = input.size();
+// finding the end of line number or commands
     for(int i = 0; i < len; ++i)
     {
         if(i == len - 1)
@@ -128,30 +110,26 @@ bool MainWindow::input(QString &input)
         if(input[i] > '9' || input[i] < '0')
             isNumber = false;
     }
+// get the line number or command
     QString cmd = input.left(cmdEnd + 1);
     if(isNumber)
     {
         int lineNum = cmd.toInt();
+        // if the line only contains a number
         if(cmdEnd == len - 1)
         {
             if(code->del(lineNum) && lineNum <= 1000000 && lineNum >= 1)
             {
                 QString message = "[Line" + input.mid(cmdEnd + 1) + " deleted]";
-//                qDebug() << "[VAILD] valid delete";
                 updateCodeBrowser();
                 ui->resultBrowser->setPlainText(message);
                 return true;
             }
             else
-            {
-//                qDebug() << "[INVAILD] invalid input";
-//                ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
                 return false;
-            }
         }
 
         Line in(lineNum, input.mid(cmdEnd + 2));
-//        qDebug() << "[insert]" << lineNum << ',' << in.code;
         if(code->insert(in) && lineNum <= 1000000 && lineNum >= 1)
         {
             QString message = "[Line " + cmd + " inserted]";
@@ -159,11 +137,7 @@ bool MainWindow::input(QString &input)
             return true;
         }
         else
-        {
-//            qDebug() << "[INVAILD] invalid input";
-//            ui->resultBrowser->setPlainText("Invaild input, please revise.\nPress del to clear input");
             return false;
-        }
     }
     if(cmd == "RUN")
     {
@@ -202,21 +176,18 @@ bool MainWindow::input(QString &input)
     }
     if(cmd == "DEL")
     {
-        int lineNum = input.mid(cmdEnd + 1).toInt();
+        int lineNum = input.midRef(cmdEnd + 1).toInt();
         if(code->del(lineNum))
         {
             QString message = "[Line" + input.mid(cmdEnd + 1) + " deleted]";
-//            qDebug() << "[VAILD] valid delete";
             updateCodeBrowser();
             ui->resultBrowser->setPlainText(message);
             return true;
         }
         else
-        {
-//            qDebug() << "[INVAILD] invalid input";
             return false;
-        }
     }
+    // handle single commands that would be executed immediately
     if(cmd == "LET" || cmd == "PRINT" || cmd == "INPUT")
     {
         isSingleCmd = true;
@@ -237,7 +208,6 @@ void MainWindow::run()
     {
         program->parseStatements(code->getCode());
         program->initialize();
-//        program->clearContext();
     }
     catch(QString err)
     {
@@ -253,6 +223,7 @@ void MainWindow::runCode()
 {
     try
     {
+        // program->run() return false if needs input, throw QString if contains errors
         if(program->run(inputOfProgram, outputOfProgram))
         {
             outputOfProgram += "\n[Program executed successfully]";
@@ -373,19 +344,16 @@ void MainWindow::loadFile(const QString &filename)
             updateCodeBrowser();
             ui->treeBrowser->clear();
             ui->resultBrowser->setPlainText("[File loaded]");
-//            qDebug() << "[FILE] file loaded";
             ui->inputEdit->clear();
             break;
         // unable to open
         case -1:
             ui->resultBrowser->setPlainText("[Invaild file path]");
-//            qDebug() << "[INVALID] invaild file path";
             break;
         // file contains errors
         case -2:
             ui->treeBrowser->clear();
             ui->resultBrowser->setPlainText("[File contains invaild line numbers]");
-//            qDebug() << "[INVALID] invaild lineNum in file";
             break;
     }
 }
@@ -395,21 +363,16 @@ void MainWindow::saveFile(const QString &filename)
     if(code->save(filename))
     {
         ui->resultBrowser->setPlainText("[File saved]");
-//        qDebug() << "[FILE] file saved";
         ui->inputEdit->clear();
         status = INPUT;
     }
     else
-    {
         ui->resultBrowser->setPlainText("[Invaild file path]");
-//        qDebug() << "[INVALID] invaild file path";
-    }
 }
 
 void MainWindow::load()
 {
     status = LOAD;
-//    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit loading mode");
     QString filename = QFileDialog::getOpenFileName(this, "choose a file to open");
     loadFile(filename);
     status = INPUT;
@@ -419,7 +382,6 @@ void MainWindow::load()
 void MainWindow::save()
 {
     status = SAVE;
-//    ui->resultBrowser->setPlainText("Please input file path.\nPress esc to exit saving mode");
     QString filename = QFileDialog::getSaveFileName(this, "choose a file to save");
     saveFile(filename);
     status = INPUT;

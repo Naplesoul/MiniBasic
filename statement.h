@@ -15,12 +15,15 @@ public:
 
     int lineNum;
     StatementType type;
-
+// return true if parsing is successful, throws a QString describing error infomation.
     virtual bool parse(const QString &code) = 0;
+// return true if run successfully, false if the statement needs input, throws a QString describing error infomation when meet error.
     virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output) = 0;
     virtual QString printTree() = 0;
 
+// isValid is false if this statement contains errors when parsing
     bool isValid = true;
+// errInfo is not empty when the isValid is false
     QString errInfo = "";
 
     bool isIntNumber(const QString &s)
