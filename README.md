@@ -24,6 +24,18 @@ QUIT --Quit the interpreter
 
 
 
+#### Shortcuts:
+
+Ctrl + L --LOAD
+
+Ctrl + S --SAVE
+
+Ctrl + R --RUN
+
+Ctrl + Del --Clear input box
+
+
+
 To insert a line, type line number with a space before the command:
 
 1 PRINT 666
