@@ -20,9 +20,24 @@ int EvaluationContext::getValue(QString var)
 
 bool EvaluationContext::isDefined(QString var)
 {
-    if(symbolTable.contains(var))
-        return true;
-    return false;
+    return symbolTable.contains(var) || stringTable.contains(var);
+}
+
+void EvaluationContext::setString(QString var, QString val)
+{
+    stringTable[var] = val;
+}
+
+QString EvaluationContext::getString(QString var)
+{
+    if (isStringDefined(var))
+        return stringTable.value(var);
+    return "";
+}
+
+bool EvaluationContext::isStringDefined(QString var)
+{
+    return stringTable.contains(var);
 }
 
 int ConstantExp::eval(EvaluationContext &)
@@ -51,9 +66,11 @@ QString IdentifierExp::toTree(int layer)
 
 int IdentifierExp::eval(EvaluationContext & context)
 {
-   if (!context.isDefined(name))
-       throw QString("[" + name + " is undefined]\n");
-   return context.getValue(name);
+    if (context.isStringDefined(name))
+        throw QString("[" + name + " is a STRING, not a INT]\n");
+    if (!context.isDefined(name))
+        throw QString("[" + name + " is undefined]\n");
+    return context.getValue(name);
 }
 
 int CompoundExp::eval(EvaluationContext & context)

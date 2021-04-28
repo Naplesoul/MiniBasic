@@ -7,6 +7,26 @@
 #include <QString>
 
 
+struct formatContent
+{
+    bool isString;
+    QString string;
+    CompoundExp *exp;
+    formatContent(bool _isString, const QString &_string = "", QString _exp = ""): isString(_isString), string(_string), exp(nullptr)
+    {
+        _exp = _exp.trimmed();
+        if (isString || _exp == "")
+            return;
+        exp = new CompoundExp(_exp);
+    }
+    ~formatContent()
+    {
+        if (!isString)
+            delete exp;
+    }
+};
+
+
 class Statement
 {
 public:
@@ -43,7 +63,7 @@ public:
 class RemStmt : public Statement
 {
 public:
-    RemStmt(int l){lineNum = l, type = REMSTMT;}
+    RemStmt(int l){lineNum = l; type = REMSTMT;}
     bool parse(const QString &){return true;}
     bool run(EvaluationContext &, int &, QString &, QString &){return true;}
     QString printTree(){return "";}
@@ -56,23 +76,24 @@ public:
 class LetStmt : public Statement
 {
 public:
-    LetStmt(int l){lineNum = l, type = LETSTMT;}
+    LetStmt(int l):isString(false) {lineNum = l; type = LETSTMT;}
     ~LetStmt(){delete exp;}
 
     bool parse(const QString &code);
     bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
     QString printTree();
 private:
+    bool isString;
+    QString stringVal;
+    IdentifierExp *var;
     CompoundExp *exp;
 };
-
-
 
 
 class PrintStmt : public Statement
 {
 public:
-    PrintStmt(int l){lineNum = l, type = PRINTSTMT;}
+    PrintStmt(int l){lineNum = l; type = PRINTSTMT;}
     ~PrintStmt(){delete exp;}
 
     virtual bool parse(const QString &code);
@@ -82,13 +103,24 @@ private:
     CompoundExp *exp;
 };
 
+class PrintfStmt : public Statement
+{
+public:
+    PrintfStmt(int l){lineNum = l; type = PRINTFSTMT;}
+    ~PrintfStmt(){delete exp;}
 
+    virtual bool parse(const QString &code);
+    virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
+private:
+    CompoundExp *exp;
+};
 
 
 class InputStmt : public Statement
 {
 public:
-    InputStmt(int l){lineNum = l, type = INPUTSTMT;}
+    InputStmt(int l){lineNum = l; type = INPUTSTMT;}
     ~InputStmt(){delete var;}
 
     bool parse(const QString &code);
@@ -98,7 +130,18 @@ private:
     IdentifierExp *var;
 };
 
+class InputsStmt : public Statement
+{
+public:
+    InputsStmt(int l){lineNum = l; type = INPUTSSTMT;}
+    ~InputsStmt() {delete var;}
 
+    bool parse(const QString &code);
+    bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
+    QString printTree();
+private:
+    IdentifierExp *var;
+};
 
 
 class GotoStmt : public Statement

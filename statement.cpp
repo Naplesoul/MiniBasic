@@ -4,7 +4,7 @@
 bool LetStmt::parse(const QString &code)
 {
     QString content = code.trimmed();
-    QString var;
+    QString varName;
     int len = content.length();
     int end = -1;
     for(int i = 0; i < len; ++i)
@@ -21,29 +21,42 @@ bool LetStmt::parse(const QString &code)
         throw QString("[Syntax error in line ") + QString::number(lineNum) + "]\n";
     }
 
-    var = content.left(end + 1).trimmed();
+    varName = content.left(end + 1).trimmed();
 
-    IdentifierExp *lhs;
-    CompoundExp *rhs;
 
     try
     {
-        lhs = new IdentifierExp(var);
-        rhs = new CompoundExp(content.mid(end + 2).trimmed());
+        var = new IdentifierExp(varName);
+        QString val = content.mid(end + 2).trimmed();
+        int size = val.size();
+        if (size > 0 && ((val[0] == '\'' && val[size - 1] == '\'') || (val[0] == '\"' && val[size - 1] == '\"'))) {
+            val = val.mid(1, size - 2);
+            size -= 2;
+            for (int  i = 0; i < size; ++i) {
+                if (val[i] == '\'' || val[i] == '\"')
+                    throw QString("[Invalid string in line ");
+            }
+            isString = true;
+            stringVal = val;
+        } else {
+            exp = new CompoundExp(val);
+        }
     }
     catch(QString err)
     {
         throw QString(err + QString::number(lineNum) + "]\n");
     }
 
-    exp = new CompoundExp("=", lhs, rhs);
 
     return true;
 }
 
 bool LetStmt::run(EvaluationContext &evaluationContext, int &, QString &, QString &)
 {
-    evaluationContext.setValue(exp->getLHS()->toString(), exp->getRHS()->eval(evaluationContext));
+    if (isString)
+        evaluationContext.setString(var->toString(), stringVal);
+    else
+        evaluationContext.setValue(var->toString(), exp->eval(evaluationContext));
     return true;
 }
 
@@ -97,11 +110,37 @@ bool InputStmt::run(EvaluationContext &evaluationContext, int &, QString &input,
         QString numberString = input.left(numEnd + 1);
         input = input.mid(numEnd + 2);
         if(!isIntNumber(numberString))
-            throw QString("[Invalid input. Please input an int]");
+            throw QString("[Invalid input. Please input an int]\n[Program terminated with faults]");
         evaluationContext.setValue(var->toString(), numberString.toInt());
         return true;
     }
     return false;
+}
+
+bool InputsStmt::parse(const QString &code)
+{
+    var = new IdentifierExp(code);
+    return true;
+}
+
+bool InputsStmt::run(EvaluationContext &evaluationContext, int &, QString &input, QString &)
+{
+    QString val = input.trimmed();
+    if (val.isEmpty())
+        return false;
+    int size = val.size();
+    if ((val[0] == '\'' && val[size - 1] == '\'') || (val[0] == '\"' && val[size - 1] == '\"')) {
+        val = val.mid(1, size - 2);
+        size -= 2;
+        for (int  i = 0; i < size; ++i) {
+            if (val[i] == '\'' || val[i] == '\"')
+                throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n[Program terminated with faults]");
+        }
+        evaluationContext.setString(var->toString(), val);
+        input.clear();
+        return true;
+    }
+    throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n[Program terminated with faults]");
 }
 
 bool GotoStmt::parse(const QString &code)
@@ -213,8 +252,11 @@ QString LetStmt::printTree()
 {
     QString tree = "";
     tree += QString::number(lineNum) + " LET =\n";
-    tree += exp->getLHS()->toTree(1);
-    tree += exp->getRHS()->toTree(1);
+    tree += var->toTree(1);
+    if (isString)
+        tree += "\t\"" + stringVal + "\"";
+    else
+        tree += exp->toTree(1);
     return tree;
 }
 
@@ -230,6 +272,14 @@ QString InputStmt::printTree()
 {
     QString tree = "";
     tree += QString::number(lineNum) + " INPUT\n";
+    tree += var->toTree(1);
+    return tree;
+}
+
+QString InputsStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " INPUTS\n";
     tree += var->toTree(1);
     return tree;
 }
