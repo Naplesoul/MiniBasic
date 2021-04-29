@@ -5,25 +5,41 @@
 #include "initialize.h"
 #include "code.h"
 #include <QString>
+#include <QVector>
+#include <QList>
 
 
-struct formatContent
+struct FormatContent
 {
     bool isString;
     QString string;
     CompoundExp *exp;
-    formatContent(bool _isString, const QString &_string = "", QString _exp = ""): isString(_isString), string(_string), exp(nullptr)
+    FormatContent(bool _isString, const QString &_string): isString(_isString), string(_string), exp(nullptr)
     {
-        _exp = _exp.trimmed();
-        if (isString || _exp == "")
-            return;
-        exp = new CompoundExp(_exp);
+        if (!isString)
+            exp = new CompoundExp(_string);
     }
-    ~formatContent()
+    ~FormatContent()
     {
         if (!isString)
             delete exp;
     }
+    QString eval(EvaluationContext &evaluationContext)
+    {
+        if (isString)
+            return string;
+        QString result;
+        try {
+            result = QString::number(exp->eval(evaluationContext));
+        }  catch (QString) {
+            // the symbol context for int does not contains the var
+            if (evaluationContext.isStringDefined(string))
+                return evaluationContext.getString(string);
+            throw QString("[Undefined variable name in line ");
+        }
+        return result;
+    }
+
 };
 
 
@@ -71,8 +87,6 @@ public:
 };
 
 
-
-
 class LetStmt : public Statement
 {
 public:
@@ -107,13 +121,28 @@ class PrintfStmt : public Statement
 {
 public:
     PrintfStmt(int l){lineNum = l; type = PRINTFSTMT;}
-    ~PrintfStmt(){delete exp;}
+    ~PrintfStmt()
+    {
+        for (auto it : contents)
+            delete it;
+    }
 
     virtual bool parse(const QString &code);
     virtual bool run(EvaluationContext &evaluationContext, int &pc, QString &input, QString &output);
     QString printTree();
+    static int findChar(const QString &content, const char &find)
+    {
+        int length = content.length();
+        for (int i = 0; i < length; ++i) {
+            if (content[i] == find)
+                return i;
+        }
+        return -1;
+    }
 private:
-    CompoundExp *exp;
+    QString text;
+    QList<FormatContent*> contents;
+    QList<QString> textFragments;
 };
 
 

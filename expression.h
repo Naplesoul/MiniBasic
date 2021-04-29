@@ -14,11 +14,13 @@ public:
     void setValue(QString var, int value);
     int getValue(QString var);
     bool isDefined(QString var);
+    bool deleteValue(QString var) {return symbolTable.remove(var);}
     void clear(){symbolTable.clear(); stringTable.clear();}
 
     void setString(QString var, QString val);
     QString getString(QString var);
     bool isStringDefined(QString var);
+    bool deleteString(QString var) {return stringTable.remove(var);}
 
 private:
     QMap<QString,QString> stringTable;

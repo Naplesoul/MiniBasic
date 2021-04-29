@@ -20,7 +20,7 @@ int EvaluationContext::getValue(QString var)
 
 bool EvaluationContext::isDefined(QString var)
 {
-    return symbolTable.contains(var) || stringTable.contains(var);
+    return symbolTable.contains(var);
 }
 
 void EvaluationContext::setString(QString var, QString val)

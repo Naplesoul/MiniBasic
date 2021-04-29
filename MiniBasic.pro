@@ -39,4 +39,4 @@ DISTFILES += \
     myapp.rc \
     terminal.ico
 
-RC_FILE = myapp.rc
+#RC_FILE = myapp.rc

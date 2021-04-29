@@ -74,6 +74,24 @@ bool Program::parseStatements(const QList<Line> &code)
                 emit printTree(newStatement->printTree());
                 continue;
             }
+            else if(fun == "PRINTF")
+            {
+                PrintfStmt* newStatement = new PrintfStmt((*it).lineNum);
+                try
+                {
+                    newStatement->parse(content.trimmed());
+                } catch (QString err)
+                {
+                    newStatement->isValid = false;
+                    newStatement->errInfo = err;
+                    statements.push_back(newStatement);
+                    emit printTree(QString::number((*it).lineNum) + " Error\n");
+                    continue;
+                }
+                statements.push_back(newStatement);
+                emit printTree(newStatement->printTree());
+                continue;
+            }
             else if(fun == "INPUT")
             {
                 InputStmt* newStatement = new InputStmt((*it).lineNum);

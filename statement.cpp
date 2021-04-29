@@ -53,10 +53,13 @@ bool LetStmt::parse(const QString &code)
 
 bool LetStmt::run(EvaluationContext &evaluationContext, int &, QString &, QString &)
 {
-    if (isString)
+    if (isString) {
+        evaluationContext.deleteValue(var->toString());
         evaluationContext.setString(var->toString(), stringVal);
-    else
+    } else {
+        evaluationContext.deleteString(var->toString());
         evaluationContext.setValue(var->toString(), exp->eval(evaluationContext));
+    }
     return true;
 }
 
@@ -79,6 +82,96 @@ bool PrintStmt::run(EvaluationContext &evaluationContext, int &, QString &, QStr
     output += QString::number(val) + "\n";
     return true;
 }
+
+bool PrintfStmt::parse(const QString &code)
+{
+    QString input = code.trimmed();
+    int stringEnd = findChar(input, ',');
+    QString formatText = input.left(stringEnd).trimmed();
+    int length = formatText.length();
+    if ((formatText[0] == '\'' && formatText[length - 1] == '\'') || (formatText[0] == '\"' && formatText[length - 1] == '\"')) {
+        formatText = formatText.mid(1, length - 2);
+        text = formatText;
+        length -= 2;
+        for (int  i = 0; i < length; ++i) {
+            if (formatText[i] == '\'' || formatText[i] == '\"')
+                throw QString("[Invalid string in line "+ QString::number(lineNum) + "]\n");
+        }
+    } else
+        throw QString("[Invalid string in line "+ QString::number(lineNum) + "]\n");
+    try
+    {
+        input = input.mid(stringEnd + 1).trimmed();
+        int commentPos = findChar(input, ',');
+        while (commentPos != -1) {
+            QString cur = input.left(commentPos).trimmed();
+            if (cur.isEmpty())
+                throw QString("[Invalid input in line ");
+            input = input.mid(commentPos + 1).trimmed();
+            if ((cur[0] == '\'' && cur[length - 1] == '\'') || (cur[0] == '\"' && cur[length - 1] == '\"')) {
+                cur = cur.mid(1, length - 2);
+                length -= 2;
+                for (int  i = 0; i < length; ++i) {
+                    if (cur[i] == '\'' || cur[i] == '\"')
+                        throw QString("[Invalid string in line ");
+                }
+                contents.push_back(new FormatContent(true, cur));
+            } else {
+                contents.push_back(new FormatContent(false, cur));
+            }
+            commentPos = findChar(input, ',');
+        }
+        if (input.isEmpty())
+            throw QString("[Invalid input in line ");
+        if ((input[0] == '\'' && input[length - 1] == '\'') || (input[0] == '\"' && input[length - 1] == '\"')) {
+            input = input.mid(1, length - 2);
+            length -= 2;
+            for (int  i = 0; i < length; ++i) {
+                if (input[i] == '\'' || input[i] == '\"')
+                    throw QString("[Invalid string in line ");
+            }
+            contents.push_back(new FormatContent(true, input));
+        } else {
+            contents.push_back(new FormatContent(false, input));
+        }
+    }
+    catch(QString err)
+    {
+        throw QString(err + QString::number(lineNum) + "]\n");
+    }
+
+    // parse the format text
+    int fragPos = findChar(formatText, '{');
+    while (fragPos != -1) {
+        textFragments.push_back(formatText.left(fragPos));
+        formatText = formatText.mid(fragPos + 1);
+        fragPos = findChar(formatText, '}');
+        if (fragPos == -1)
+            throw QString("[{ and } does not match in line "+ QString::number(lineNum) + "]\n");
+        QString middle = formatText.left(fragPos).trimmed();
+        if (middle != "")
+            throw QString("[No char should be in { } in line "+ QString::number(lineNum) + "]\n");
+        formatText = formatText.mid(fragPos + 1);
+        fragPos = findChar(formatText, '{');
+    }
+    textFragments.push_back(formatText);
+    return true;
+}
+
+bool PrintfStmt::run(EvaluationContext &evaluationContext, int &, QString &, QString &output)
+{
+    output += textFragments.front();
+    textFragments.pop_front();
+    for (auto it : textFragments) {
+        if (contents.empty())
+            throw QString("[Lack parameters in line "+ QString::number(lineNum) + "]\n");
+        output += contents.front()->eval(evaluationContext);
+        contents.pop_front();
+        output += it;
+    }
+    return true;
+}
+
 
 bool InputStmt::parse(const QString &code)
 {
@@ -111,6 +204,7 @@ bool InputStmt::run(EvaluationContext &evaluationContext, int &, QString &input,
         input = input.mid(numEnd + 2);
         if(!isIntNumber(numberString))
             throw QString("[Invalid input. Please input an int]\n[Program terminated with faults]");
+        evaluationContext.deleteString(var->toString());
         evaluationContext.setValue(var->toString(), numberString.toInt());
         return true;
     }
@@ -128,14 +222,15 @@ bool InputsStmt::run(EvaluationContext &evaluationContext, int &, QString &input
     QString val = input.trimmed();
     if (val.isEmpty())
         return false;
-    int size = val.size();
-    if ((val[0] == '\'' && val[size - 1] == '\'') || (val[0] == '\"' && val[size - 1] == '\"')) {
-        val = val.mid(1, size - 2);
-        size -= 2;
-        for (int  i = 0; i < size; ++i) {
+    int length = val.length();
+    if ((val[0] == '\'' && val[length - 1] == '\'') || (val[0] == '\"' && val[length - 1] == '\"')) {
+        val = val.mid(1, length - 2);
+        length -= 2;
+        for (int  i = 0; i < length; ++i) {
             if (val[i] == '\'' || val[i] == '\"')
                 throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n[Program terminated with faults]");
         }
+        evaluationContext.deleteValue(var->toString());
         evaluationContext.setString(var->toString(), val);
         input.clear();
         return true;
@@ -265,6 +360,20 @@ QString PrintStmt::printTree()
     QString tree = "";
     tree += QString::number(lineNum) + " PRINT\n";
     tree += exp->toTree(1);
+    return tree;
+}
+
+QString PrintfStmt::printTree()
+{
+    QString tree = "";
+    tree += QString::number(lineNum) + " PRINTF\n";
+    tree += "\t" + text + "\n";
+    for (auto it : contents) {
+        if (it->isString)
+            tree += "\t" + it->string;
+        else
+            tree += (it->exp)->toTree(1);
+    }
     return tree;
 }
 
