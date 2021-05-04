@@ -233,3 +233,11 @@ void Program::clearContext()
 {
     evaluationContext.clear();
 }
+
+QList<bool> Program::getValidity() const
+{
+    QList<bool> result;
+    for (auto it : statements)
+        result.push_back(it->isValid);
+    return result;
+}

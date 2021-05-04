@@ -21,6 +21,8 @@ public:
 
     void initialize();
     void clearContext();
+
+    QList<bool> getValidity() const;
 private:
     QList<Statement*> statements;
     EvaluationContext evaluationContext;

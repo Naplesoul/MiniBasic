@@ -3,7 +3,6 @@
 #include <QFileDialog>
 
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -77,7 +76,7 @@ void MainWindow::handleInput()
         case INPUT:
             if(input(in))
             {
-                ui->codeBrowser->setPlainText(code->printCode());
+//                ui->codeBrowser->setPlainText(code->printCode());
                 ui->inputEdit->clear();
             }
             else
@@ -133,6 +132,7 @@ bool MainWindow::input(QString &input)
         if(code->insert(in) && lineNum <= 1000000 && lineNum >= 1)
         {
             QString message = "[Line " + cmd + " inserted]";
+            updateCodeBrowser();
             ui->resultBrowser->setPlainText(message);
             return true;
         }
@@ -188,7 +188,7 @@ bool MainWindow::input(QString &input)
             return false;
     }
     // handle single commands that would be executed immediately
-    if(cmd == "LET" || cmd == "PRINT" || cmd == "INPUT")
+    if(cmd == "LET" || cmd == "PRINT" || cmd == "INPUT" || cmd == "PRINTF" || cmd == "INPUTS")
     {
         isSingleCmd = true;
         runSingle(input);
@@ -207,6 +207,7 @@ void MainWindow::run()
     try
     {
         program->parseStatements(code->getCode());
+        highLightWrong();
         program->initialize();
     }
     catch(QString err)
@@ -260,6 +261,7 @@ void MainWindow::runSingle(QString &cmd)
     try
     {
         program->parseStatements(singleCmd);
+        highLightWrong();
         program->initialize();
         runSingleCode();
     }
@@ -322,7 +324,7 @@ void MainWindow::clearCode()
 
 void MainWindow::updateCodeBrowser()
 {
-    ui->codeBrowser->setPlainText(code->printCode());
+    ui->codeBrowser->setText(code->printCode());
 }
 
 void MainWindow::help()
@@ -399,6 +401,22 @@ void MainWindow::clear()
     clearCode();
     program->clearContext();
     status = INPUT;
+}
+
+void MainWindow::highLightWrong()
+{
+    QStringList codeString = code->getStringLines();
+    QList<bool> validity = program->getValidity();
+    QString text;
+    auto validityIt = validity.begin();
+    for (auto codeIt = codeString.begin(); codeIt != codeString.end(); ++codeIt) {
+        if (*validityIt)
+            text += "<p style=\"line-height:0.59\">" + *codeIt + "</p>\n";
+        else
+            text += "<p style=\"color:#ff2525;line-height:0.59\">" + *codeIt + "</p>\n";
+        ++validityIt;
+    }
+    ui->codeBrowser->setHtml(text);
 }
 
 MainWindow::~MainWindow()

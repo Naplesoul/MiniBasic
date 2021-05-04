@@ -105,6 +105,7 @@ bool PrintfStmt::parse(const QString &code)
         int commentPos = findChar(input, ',');
         while (commentPos != -1) {
             QString cur = input.left(commentPos).trimmed();
+            length = cur.length();
             if (cur.isEmpty())
                 throw QString("[Invalid input in line ");
             input = input.mid(commentPos + 1).trimmed();
@@ -123,6 +124,7 @@ bool PrintfStmt::parse(const QString &code)
         }
         if (input.isEmpty())
             throw QString("[Invalid input in line ");
+        length = input.length();
         if ((input[0] == '\'' && input[length - 1] == '\'') || (input[0] == '\"' && input[length - 1] == '\"')) {
             input = input.mid(1, length - 2);
             length -= 2;
@@ -160,15 +162,18 @@ bool PrintfStmt::parse(const QString &code)
 
 bool PrintfStmt::run(EvaluationContext &evaluationContext, int &, QString &, QString &output)
 {
-    output += textFragments.front();
-    textFragments.pop_front();
-    for (auto it : textFragments) {
-        if (contents.empty())
+    QList<QString> textF = textFragments;
+    QList<FormatContent*> cont = contents;
+    output += textF.front();
+    textF.pop_front();
+    for (auto it : textF) {
+        if (cont.empty())
             throw QString("[Lack parameters in line "+ QString::number(lineNum) + "]\n");
-        output += contents.front()->eval(evaluationContext);
-        contents.pop_front();
+        output += cont.front()->eval(evaluationContext);
+        cont.pop_front();
         output += it;
     }
+    output += "\n";
     return true;
 }
 
@@ -367,12 +372,12 @@ QString PrintfStmt::printTree()
 {
     QString tree = "";
     tree += QString::number(lineNum) + " PRINTF\n";
-    tree += "\t" + text + "\n";
-    for (auto it : contents) {
-        if (it->isString)
-            tree += "\t" + it->string;
+    tree += "\t\"" + text + "\"\n";
+    for (auto it = contents.begin(); it != contents.end(); ++it) {
+        if ((*it)->isString)
+            tree += "\t\"" + (*it)->string + "\"\n";
         else
-            tree += (it->exp)->toTree(1);
+            tree += ((*it)->exp)->toTree(1);
     }
     return tree;
 }

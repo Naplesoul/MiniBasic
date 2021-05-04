@@ -36,7 +36,7 @@ DISTFILES += \
     JetBrainsMono-ExtraBold.ttf \
     NotoSansCJKsc-Black.otf \
     README.md \
-    myapp.rc \
-    terminal.ico
+    minibasic.ico \
+    minibasic.rc
 
-#RC_FILE = myapp.rc
+RC_FILE += minibasic.rc

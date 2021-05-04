@@ -56,6 +56,16 @@ QString CodeBuffer::printCode()
     return output;
 }
 
+QStringList CodeBuffer::getStringLines() const
+{
+    QStringList output;
+    for(auto it = codeList.begin(); it != codeList.end(); ++it)
+    {
+        output.push_back(QString::number((*it).lineNum) + " " + (*it).code);
+    }
+    return output;
+}
+
 const QList<Line>& CodeBuffer::getCode() const
 {
     return codeList;
@@ -157,6 +167,11 @@ bool Code::save(const QString &filename)
 const QList<Line>& Code::getCode() const
 {
     return codeBuffer->getCode();
+}
+
+QStringList Code::getStringLines() const
+{
+    return codeBuffer->getStringLines();
 }
 
 void Code::clear()

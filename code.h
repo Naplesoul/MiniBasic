@@ -40,6 +40,7 @@ public:
 
 // get all code in a QList of Line
     const QList<Line>& getCode() const;
+    QStringList getStringLines() const;
 };
 
 
@@ -59,6 +60,7 @@ public:
     void clear();
     QString printCode();
     const QList<Line>& getCode() const;
+    QStringList getStringLines() const;
 };
 
 #endif // CODE_H

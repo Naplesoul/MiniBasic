@@ -55,6 +55,8 @@ private:
 
     bool isSingleCmd = false;
 
+    void highLightWrong();
+
 
     QString helpText = "Basic commands:\nRUN --Execute the program\nLOAD --Load code from a file\nLIST --List code in the Code box\nCLEAR --Clear code and context\nHELP --Get help text\nQUIT --Quit the interpreter\n\nShortcuts:\nCtrl + L --LOAD\nCtrl + S --SAVE\nCtrl + R --RUN\nCtrl + Del --Clear input box\n\nTo insert a line, type line number with a space before the command:\n1 PRINT 666\nLine number should be between 1 & 1000000\n\nOnly typing a line number will delete this line\n\nINPUT, PRINT, LET command can be executed immediately on the current context";
 
