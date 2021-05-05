@@ -22,6 +22,8 @@ public:
     bool isStringDefined(QString var);
     bool deleteString(QString var) {return stringTable.remove(var);}
 
+    QString printContext();
+
 private:
     QMap<QString,QString> stringTable;
     QMap<QString,int> symbolTable;

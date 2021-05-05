@@ -181,6 +181,44 @@ bool Program::parseStatements(const QList<Line> &code)
     return true;
 }
 
+int Program::step(QString &input, QString &output)
+{
+    QList<Statement*>::iterator it = statements.begin();
+    for (; it != statements.end(); ++it) {
+        if ((*it)->lineNum == pc)
+            break;
+    }
+
+    if (!(*it)->isValid)
+        throw (*it)->errInfo;
+    int oriPc = pc;
+    if ((*it)->type == ENDSTMT)
+        return 0;
+
+    // ask for input
+    if (!(*it)->run(evaluationContext, pc, input, output))
+        return -1;
+
+    if (pc == oriPc) {
+        ++it;
+        if(it != statements.end()) {
+            pc = (*it)->lineNum;
+            return 1;
+        } else
+            return 0;
+    } else {
+        // move it to target pc
+        for(it = statements.begin(); it != statements.end(); ++it)
+        {
+            if((*it)->lineNum == pc)
+                break;
+        }
+        if(it == statements.end())
+            throw QString("[Target line does not exist in line " + QString::number(oriPc) + "]\n");
+    }
+    return 0;
+}
+
 bool Program::run(QString &input, QString &output)
 {
     QList<Statement*>::iterator it = statements.begin();
@@ -240,4 +278,36 @@ QList<bool> Program::getValidity() const
     for (auto it : statements)
         result.push_back(it->isValid);
     return result;
+}
+
+int Program::getNextPos()
+{
+    int i = 0;
+    for (auto it : statements) {
+        if (pc == it->lineNum)
+            return i;
+        else
+            i++;
+    }
+    return -1;
+}
+
+void Program::printNextTree()
+{
+    for (auto it : statements) {
+        if (pc == it->lineNum) {
+            if (it->isValid == false)
+                emit printTree(QString::number(it->lineNum) + " Error\n");
+            else if (it->type == ENDSTMT)
+                emit printTree(QString::number(it->lineNum) + " END\n");
+            else
+                emit printTree(it->printTree());
+            return;
+        }
+    }
+}
+
+QString Program::printContext()
+{
+    return evaluationContext.printContext();
 }

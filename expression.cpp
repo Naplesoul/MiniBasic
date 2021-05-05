@@ -3,6 +3,17 @@
 #include <QDebug>
 #include <cmath>
 
+QString EvaluationContext::printContext()
+{
+    QString context;
+    for (auto it = symbolTable.begin(); it != symbolTable.end(); ++it) {
+        context += it.key() + ": INT = " + QString::number(it.value()) + "\n";
+    }
+    for (auto it = stringTable.begin(); it != stringTable.end(); ++it) {
+        context += it.key() + ": STR = \"" +it.value() + "\"\n";
+    }
+    return context;
+}
 
 void EvaluationContext::setValue(QString var, int value)
 {

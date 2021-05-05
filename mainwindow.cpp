@@ -18,6 +18,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clear);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
+    connect(ui->debugButton, &QPushButton::clicked, this, &MainWindow::debug);
+    connect(ui->stepButton, &QPushButton::clicked, this, &MainWindow::step);
+
+    ui->stepButton->setEnabled(false);
 
     connect(program, &Program::printTree, this, &MainWindow::printTree);
 }
@@ -74,6 +78,10 @@ void MainWindow::handleInput()
             ui->resultBrowser->setText("[Clearing now, please wait...]");
             break;
         case INPUT:
+            if (isDebugMode) {
+                ui->resultBrowser->append("[Debugging now, please wait...]");
+                break;
+            }
             if(input(in))
             {
 //                ui->codeBrowser->setPlainText(code->printCode());
@@ -197,6 +205,77 @@ bool MainWindow::input(QString &input)
     return false;
 }
 
+void MainWindow::debug()
+{
+    isDebugMode = true;
+    ui->debugButton->setEnabled(false);
+    ui->stepButton->setEnabled(true);
+    status = RUN;
+    ui->resultBrowser->clear();
+    ui->treeBrowser->clear();
+    inputOfProgram.clear();
+    outputOfProgram.clear();
+    try
+    {
+        program->parseStatements(code->getCode());
+        ui->treeBrowser->clear();
+        program->initialize();
+        highLightWrongAndNext();
+        printNextTree();
+    }
+    catch(QString err)
+    {
+        ui->resultBrowser->setPlainText(err);
+        status = INPUT;
+        ui->inputEdit->setFocus();
+        return;
+    }
+    status = INPUT;
+}
+
+void MainWindow::step()
+{
+    try {
+        switch (program->step(inputOfProgram, outputOfProgram)) {
+            case 0:
+                highLightWrong();
+                outputOfProgram += "\n[Program executed successfully]";
+                ui->resultBrowser->setPlainText(outputOfProgram);
+                updateContextBrowser();
+                outputOfProgram.clear();
+                status = INPUT;
+                isDebugMode = false;
+                ui->debugButton->setEnabled(true);
+                ui->stepButton->setEnabled(false);
+                return;
+            case 1:
+                updateContextBrowser();
+                ui->resultBrowser->setPlainText(outputOfProgram);
+                highLightWrongAndNext();
+                printNextTree();
+                break;
+            case -1:
+                status = WAIT_FOR_INPUT;
+                ui->resultBrowser->setPlainText("[Ask for input]");
+                ui->inputEdit->setFocus();
+                break;
+
+        }
+    }  catch (QString err) {
+        highLightWrong();
+        updateContextBrowser();
+        ui->resultBrowser->setPlainText(err);
+        status = INPUT;
+        isDebugMode = false;
+        ui->debugButton->setEnabled(true);
+        ui->stepButton->setEnabled(false);
+        ui->inputEdit->setFocus();
+        inputOfProgram.clear();
+        outputOfProgram.clear();
+        return;
+    }
+}
+
 void MainWindow::run()
 {
     status = RUN;
@@ -229,6 +308,7 @@ void MainWindow::runCode()
         {
             outputOfProgram += "\n[Program executed successfully]";
             ui->resultBrowser->setPlainText(outputOfProgram);
+            outputOfProgram.clear();
             status = INPUT;
         }
         else
@@ -244,8 +324,8 @@ void MainWindow::runCode()
         ui->inputEdit->setFocus();
         return;
     }
+    updateContextBrowser();
     inputOfProgram.clear();
-    outputOfProgram.clear();
     ui->inputEdit->setFocus();
 }
 
@@ -297,6 +377,7 @@ void MainWindow::runSingleCode()
         status = INPUT;
         ui->treeBrowser->setPlainText("1 Error\n");
     }
+    updateContextBrowser();
     inputOfProgram.clear();
     outputOfProgram.clear();
     ui->inputEdit->setFocus();
@@ -307,7 +388,9 @@ void MainWindow::programInput(QString &input)
     inputOfProgram += " " + input;
     status = RUN;
     ui->inputEdit->clear();
-    if(isSingleCmd)
+    if (isDebugMode)
+        step();
+    else if (isSingleCmd)
         runSingleCode();
     else
         runCode();
@@ -400,6 +483,7 @@ void MainWindow::clear()
     status = CLEAR;
     clearCode();
     program->clearContext();
+    updateContextBrowser();
     status = INPUT;
 }
 
@@ -417,6 +501,44 @@ void MainWindow::highLightWrong()
         ++validityIt;
     }
     ui->codeBrowser->setHtml(text);
+}
+
+void MainWindow::highLightWrongAndNext()
+{
+    int nextPos = program->getNextPos();
+    QStringList codeString = code->getStringLines();
+    QList<bool> validity = program->getValidity();
+    QString text;
+    int i = 0;
+    auto validityIt = validity.begin();
+    for (auto codeIt = codeString.begin(); codeIt != codeString.end(); ++codeIt) {
+        if (*validityIt) {
+            if (i == nextPos)
+                text += "<p style=\"background:#64ff64;line-height:0.59\">" + *codeIt + "</p>\n";
+            else
+                text += "<p style=\"line-height:0.59\">" + *codeIt + "</p>\n";
+        }
+        else {
+            if (i == nextPos)
+                text += "<p style=\"background:#64ff64;color:#ff2525;line-height:0.59\">" + *codeIt + "</p>\n";
+            else
+                text += "<p style=\"color:#ff2525;line-height:0.59\">" + *codeIt + "</p>\n";
+        }
+        ++validityIt;
+        ++i;
+    }
+    ui->codeBrowser->setHtml(text);
+}
+
+void MainWindow::updateContextBrowser()
+{
+    ui->contextBrowser->setText(program->printContext());
+}
+
+void MainWindow::printNextTree()
+{
+    ui->treeBrowser->clear();
+    program->printNextTree();
 }
 
 MainWindow::~MainWindow()

@@ -19,8 +19,19 @@ public:
 // return true if run successfully, false if the statement needs input, throws a QString describing error infomation when meet error.
     bool run(QString &input, QString &output);
 
+    // return -1: need input
+    // return 0: program ended
+    // return 1: step succeed
+    // throws a QString describing error
+    int step(QString &input, QString &output);
+
     void initialize();
     void clearContext();
+
+    int getNextPos();
+    void printNextTree();
+
+    QString printContext();
 
     QList<bool> getValidity() const;
 private:
