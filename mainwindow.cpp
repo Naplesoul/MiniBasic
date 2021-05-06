@@ -39,7 +39,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                  switch(k->key())
                  {
                     case (Qt::Key_L):
-                        load();
+                        if (!isDebugMode)
+                            load();
                         return true;
                     case (Qt::Key_S):
                         save();
@@ -210,6 +211,8 @@ void MainWindow::debug()
     isDebugMode = true;
     ui->debugButton->setEnabled(false);
     ui->stepButton->setEnabled(true);
+    ui->loadButton->setEnabled(false);
+    ui->clearButton->setEnabled(false);
     status = RUN;
     ui->resultBrowser->clear();
     ui->treeBrowser->clear();
@@ -247,6 +250,8 @@ void MainWindow::step()
                 isDebugMode = false;
                 ui->debugButton->setEnabled(true);
                 ui->stepButton->setEnabled(false);
+                ui->loadButton->setEnabled(true);
+                ui->clearButton->setEnabled(true);
                 return;
             case 1:
                 updateContextBrowser();
@@ -269,6 +274,8 @@ void MainWindow::step()
         isDebugMode = false;
         ui->debugButton->setEnabled(true);
         ui->stepButton->setEnabled(false);
+        ui->loadButton->setEnabled(true);
+        ui->clearButton->setEnabled(true);
         ui->inputEdit->setFocus();
         inputOfProgram.clear();
         outputOfProgram.clear();
@@ -279,6 +286,9 @@ void MainWindow::step()
 void MainWindow::run()
 {
     status = RUN;
+    isDebugMode = false;
+    ui->debugButton->setEnabled(true);
+    ui->stepButton->setEnabled(false);
     ui->resultBrowser->clear();
     ui->treeBrowser->clear();
     inputOfProgram.clear();
@@ -482,6 +492,11 @@ void MainWindow::clear()
 {
     status = CLEAR;
     clearCode();
+    isSingleCmd = false;
+    ui->debugButton->setEnabled(true);
+    ui->stepButton->setEnabled(false);
+    inputOfProgram.clear();
+    outputOfProgram.clear();
     program->clearContext();
     updateContextBrowser();
     status = INPUT;
@@ -489,15 +504,19 @@ void MainWindow::clear()
 
 void MainWindow::highLightWrong()
 {
-    QStringList codeString = code->getStringLines();
-    QList<bool> validity = program->getValidity();
+    QList<QPair<int, QString>> codeString = code->getStringLines();
+    QList<QPair<int, bool>> validity = program->getValidity();
     QString text;
     auto validityIt = validity.begin();
     for (auto codeIt = codeString.begin(); codeIt != codeString.end(); ++codeIt) {
-        if (*validityIt)
-            text += "<p style=\"line-height:0.59\">" + *codeIt + "</p>\n";
+        if ((*validityIt).first != (*codeIt).first) {
+            text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
+            continue;
+        }
+        if ((*validityIt).second)
+            text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
         else
-            text += "<p style=\"color:#ff2525;line-height:0.59\">" + *codeIt + "</p>\n";
+            text += "<p style=\"color:#ff2525;margin:0\">" + (*codeIt).second + "</p>\n";
         ++validityIt;
     }
     ui->codeBrowser->setHtml(text);
@@ -505,27 +524,29 @@ void MainWindow::highLightWrong()
 
 void MainWindow::highLightWrongAndNext()
 {
-    int nextPos = program->getNextPos();
-    QStringList codeString = code->getStringLines();
-    QList<bool> validity = program->getValidity();
+    int pc = program->getPC();
+    QList<QPair<int, QString>> codeString = code->getStringLines();
+    QList<QPair<int, bool>> validity = program->getValidity();
     QString text;
-    int i = 0;
     auto validityIt = validity.begin();
     for (auto codeIt = codeString.begin(); codeIt != codeString.end(); ++codeIt) {
-        if (*validityIt) {
-            if (i == nextPos)
-                text += "<p style=\"background:#64ff64;line-height:0.59\">" + *codeIt + "</p>\n";
+        if ((*validityIt).first != (*codeIt).first) {
+            text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
+            continue;
+        }
+        if ((*validityIt).second) {
+            if ((*codeIt).first == pc)
+                text += "<p style=\"background:#64ff64;margin:0\">" + (*codeIt).second + "</p>\n";
             else
-                text += "<p style=\"line-height:0.59\">" + *codeIt + "</p>\n";
+                text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
         }
         else {
-            if (i == nextPos)
-                text += "<p style=\"background:#64ff64;color:#ff2525;line-height:0.59\">" + *codeIt + "</p>\n";
+            if ((*codeIt).first == pc)
+                text += "<p style=\"background:#64ff64;color:#ff2525;margin:0\">" + (*codeIt).second + "</p>\n";
             else
-                text += "<p style=\"color:#ff2525;line-height:0.59\">" + *codeIt + "</p>\n";
+                text += "<p style=\"color:#ff2525;margin:0\">" + (*codeIt).second + "</p>\n";
         }
         ++validityIt;
-        ++i;
     }
     ui->codeBrowser->setHtml(text);
 }

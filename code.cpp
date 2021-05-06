@@ -56,12 +56,12 @@ QString CodeBuffer::printCode()
     return output;
 }
 
-QStringList CodeBuffer::getStringLines() const
+QList<QPair<int, QString>> CodeBuffer::getStringLines() const
 {
-    QStringList output;
+    QList<QPair<int, QString>> output;
     for(auto it = codeList.begin(); it != codeList.end(); ++it)
     {
-        output.push_back(QString::number((*it).lineNum) + " " + (*it).code);
+        output.push_back(QPair<int, QString>((*it).lineNum, QString::number((*it).lineNum) + " " + (*it).code));
     }
     return output;
 }
@@ -169,7 +169,7 @@ const QList<Line>& Code::getCode() const
     return codeBuffer->getCode();
 }
 
-QStringList Code::getStringLines() const
+QList<QPair<int, QString>> Code::getStringLines() const
 {
     return codeBuffer->getStringLines();
 }

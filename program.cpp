@@ -216,7 +216,7 @@ int Program::step(QString &input, QString &output)
         if(it == statements.end())
             throw QString("[Target line does not exist in line " + QString::number(oriPc) + "]\n");
     }
-    return 0;
+    return 1;
 }
 
 bool Program::run(QString &input, QString &output)
@@ -272,24 +272,17 @@ void Program::clearContext()
     evaluationContext.clear();
 }
 
-QList<bool> Program::getValidity() const
+QList<QPair<int, bool>> Program::getValidity() const
 {
-    QList<bool> result;
+    QList<QPair<int, bool>> result;
     for (auto it : statements)
-        result.push_back(it->isValid);
+        result.push_back(QPair<int, bool>(it->lineNum, it->isValid));
     return result;
 }
 
-int Program::getNextPos()
+int Program::getPC()
 {
-    int i = 0;
-    for (auto it : statements) {
-        if (pc == it->lineNum)
-            return i;
-        else
-            i++;
-    }
-    return -1;
+    return pc;
 }
 
 void Program::printNextTree()

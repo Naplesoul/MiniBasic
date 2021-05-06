@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QList>
+#include <QPair>
 #include "statement.h"
 #include "code.h"
 
@@ -28,12 +29,12 @@ public:
     void initialize();
     void clearContext();
 
-    int getNextPos();
+    int getPC();
     void printNextTree();
 
     QString printContext();
 
-    QList<bool> getValidity() const;
+    QList<QPair<int, bool>> getValidity() const;
 private:
     QList<Statement*> statements;
     EvaluationContext evaluationContext;

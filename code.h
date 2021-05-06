@@ -4,6 +4,7 @@
 #include <QList>
 #include <QString>
 #include <QObject>
+#include <QPair>
 #include "initialize.h"
 
 // a line of code, with a line number and a QString contains code
@@ -40,7 +41,7 @@ public:
 
 // get all code in a QList of Line
     const QList<Line>& getCode() const;
-    QStringList getStringLines() const;
+    QList<QPair<int, QString>> getStringLines() const;
 };
 
 
@@ -60,7 +61,7 @@ public:
     void clear();
     QString printCode();
     const QList<Line>& getCode() const;
-    QStringList getStringLines() const;
+    QList<QPair<int, QString>> getStringLines() const;
 };
 
 #endif // CODE_H
