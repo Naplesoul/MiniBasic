@@ -46,7 +46,8 @@ bool MainWindow::eventFilter(QObject *target, QEvent *event)
                         save();
                         return true;
                     case (Qt::Key_R):
-                        run();
+                         if (!isDebugMode)
+                            run();
                         return true;
                     case (Qt::Key_Delete):
                         ui->inputEdit->clear();
