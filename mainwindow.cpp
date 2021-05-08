@@ -451,7 +451,7 @@ void MainWindow::clearCode()
 
 void MainWindow::updateCodeBrowser()
 {
-    ui->codeBrowser->setText(code->printCode());
+    ui->codeBrowser->setPlainText(code->printCode());
 }
 
 void MainWindow::help()
@@ -559,6 +559,8 @@ void MainWindow::highLightWrong()
                     + "</p>\n";
         ++validityIt;
     }
+    // avoid style change for the whole codeBrowser
+    text += "<p></p>\n";
     ui->codeBrowser->setHtml(text);
 }
 
@@ -598,6 +600,8 @@ void MainWindow::highLightWrongAndNext()
         }
         ++validityIt;
     }
+    // avoid style change for the whole codeBrowser
+    text += "<p></p>\n";
     ui->codeBrowser->setHtml(text);
 }
 
