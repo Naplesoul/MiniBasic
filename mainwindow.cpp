@@ -510,13 +510,19 @@ void MainWindow::highLightWrong()
     auto validityIt = validity.begin();
     for (auto codeIt = codeString.begin(); codeIt != codeString.end(); ++codeIt) {
         if ((*validityIt).first != (*codeIt).first) {
-            text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
+            text += "<p style=\"margin:0\">"
+                    + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                    + "</p>\n";
             continue;
         }
         if ((*validityIt).second)
-            text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
+            text += "<p style=\"margin:0\">"
+                    + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                    + "</p>\n";
         else
-            text += "<p style=\"color:#ff2525;margin:0\">" + (*codeIt).second + "</p>\n";
+            text += "<p style=\"color:#ff2525;margin:0\">"
+                    + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                    + "</p>\n";
         ++validityIt;
     }
     ui->codeBrowser->setHtml(text);
@@ -531,20 +537,30 @@ void MainWindow::highLightWrongAndNext()
     auto validityIt = validity.begin();
     for (auto codeIt = codeString.begin(); codeIt != codeString.end(); ++codeIt) {
         if ((*validityIt).first != (*codeIt).first) {
-            text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
+            text += "<p style=\"margin:0\">"
+                    + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                    + "</p>\n";
             continue;
         }
         if ((*validityIt).second) {
             if ((*codeIt).first == pc)
-                text += "<p style=\"background:#64ff64;margin:0\">" + (*codeIt).second + "</p>\n";
+                text += "<p style=\"background:#64ff64;margin:0\">"
+                        + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                        + "</p>\n";
             else
-                text += "<p style=\"margin:0\">" + (*codeIt).second + "</p>\n";
+                text += "<p style=\"margin:0\">"
+                        + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                        + "</p>\n";
         }
         else {
             if ((*codeIt).first == pc)
-                text += "<p style=\"background:#64ff64;color:#ff2525;margin:0\">" + (*codeIt).second + "</p>\n";
+                text += "<p style=\"background:#64ff64;color:#ff2525;margin:0\">"
+                        + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                        + "</p>\n";
             else
-                text += "<p style=\"color:#ff2525;margin:0\">" + (*codeIt).second + "</p>\n";
+                text += "<p style=\"color:#ff2525;margin:0\">"
+                        + (*codeIt).second.replace("<", "&lt;").replace(">", "&gt;")
+                        + "</p>\n";
         }
         ++validityIt;
     }
