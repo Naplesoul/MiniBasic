@@ -46,6 +46,7 @@ private:
     void runCode();
     void runSingle(QString &cmd);
     void runSingleCode();
+    void debugButtonPressed();
 
     void handleInput();
     bool input(QString &input);

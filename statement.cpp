@@ -246,14 +246,14 @@ bool InputsStmt::run(EvaluationContext &evaluationContext, int &, QString &input
         length -= 2;
         for (int  i = 0; i < length; ++i) {
             if (val[i] == '\'' || val[i] == '\"')
-                throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n[Program terminated with faults]");
+                throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n\n[Program terminated with faults]");
         }
         evaluationContext.deleteValue(var->toString());
         evaluationContext.setString(var->toString(), val);
         input.clear();
         return true;
     }
-    throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n[Program terminated with faults]");
+    throw QString("[Invalid string. Please input a stirng with \" or \' on both side]\n\n[Program terminated with faults]");
 }
 
 bool GotoStmt::parse(const QString &code)

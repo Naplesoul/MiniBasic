@@ -18,7 +18,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->saveButton, &QPushButton::clicked, this, &MainWindow::save);
     connect(ui->clearButton, &QPushButton::clicked, this, &MainWindow::clear);
     connect(ui->runButton, &QPushButton::clicked, this, &MainWindow::run);
-    connect(ui->debugButton, &QPushButton::clicked, this, &MainWindow::debug);
+    connect(ui->debugButton, &QPushButton::clicked, this, &MainWindow::debugButtonPressed);
     connect(ui->stepButton, &QPushButton::clicked, this, &MainWindow::step);
 
     ui->stepButton->setEnabled(false);
@@ -73,14 +73,18 @@ void MainWindow::handleInput()
             programInput(in);
             break;
         case RUN:
-            ui->resultBrowser->setText("[Running now, please wait...]");
+            ui->resultBrowser->append("\n[Running now, please wait...]");
             break;
         case CLEAR:
-            ui->resultBrowser->setText("[Clearing now, please wait...]");
+            ui->resultBrowser->append("\n[Clearing now, please wait...]");
             break;
         case INPUT:
             if (isDebugMode) {
-                ui->resultBrowser->append("[Debugging now, please wait...]");
+                ui->resultBrowser->append("\n[Debugging now, please wait...]");
+                break;
+            }
+            if (in.contains('\n')) {
+                ui->resultBrowser->setPlainText("[Please input one line each time]");
                 break;
             }
             if(input(in))
@@ -206,10 +210,32 @@ bool MainWindow::input(QString &input)
     return false;
 }
 
+void MainWindow::debugButtonPressed()
+{
+    // stop debugging
+    if (isDebugMode) {
+        highLightWrong();
+        ui->resultBrowser->setPlainText("\n[Debug stopped]\n");
+        updateContextBrowser();
+        inputOfProgram.clear();
+        outputOfProgram.clear();
+        status = INPUT;
+        isDebugMode = false;
+        ui->treeBrowser->clear();
+        ui->runButton->setEnabled(true);
+        ui->debugButton->setText("DEBUG");
+        ui->stepButton->setEnabled(false);
+        ui->loadButton->setEnabled(true);
+        ui->clearButton->setEnabled(true);
+    } else
+        debug();
+}
+
 void MainWindow::debug()
 {
     isDebugMode = true;
-    ui->debugButton->setEnabled(false);
+    ui->runButton->setEnabled(false);
+    ui->debugButton->setText("STOP");
     ui->stepButton->setEnabled(true);
     ui->loadButton->setEnabled(false);
     ui->clearButton->setEnabled(false);
@@ -229,8 +255,16 @@ void MainWindow::debug()
     catch(QString err)
     {
         ui->resultBrowser->setPlainText(err);
+        highLightWrong();
+        inputOfProgram.clear();
+        outputOfProgram.clear();
         status = INPUT;
-        ui->inputEdit->setFocus();
+        isDebugMode = false;
+        ui->runButton->setEnabled(true);
+        ui->debugButton->setText("DEBUG");
+        ui->stepButton->setEnabled(false);
+        ui->loadButton->setEnabled(true);
+        ui->clearButton->setEnabled(true);
         return;
     }
     status = INPUT;
@@ -248,7 +282,8 @@ void MainWindow::step()
                 outputOfProgram.clear();
                 status = INPUT;
                 isDebugMode = false;
-                ui->debugButton->setEnabled(true);
+                ui->runButton->setEnabled(true);
+                ui->debugButton->setText("DEBUG");
                 ui->stepButton->setEnabled(false);
                 ui->loadButton->setEnabled(true);
                 ui->clearButton->setEnabled(true);
@@ -261,7 +296,7 @@ void MainWindow::step()
                 break;
             case -1:
                 status = WAIT_FOR_INPUT;
-                ui->resultBrowser->setPlainText("[Ask for input]");
+                ui->resultBrowser->append("\n[Ask for input]");
                 ui->inputEdit->setFocus();
                 break;
 
@@ -272,7 +307,8 @@ void MainWindow::step()
         ui->resultBrowser->setPlainText(err);
         status = INPUT;
         isDebugMode = false;
-        ui->debugButton->setEnabled(true);
+        ui->runButton->setEnabled(true);
+        ui->debugButton->setText("DEBUG");
         ui->stepButton->setEnabled(false);
         ui->loadButton->setEnabled(true);
         ui->clearButton->setEnabled(true);
@@ -287,7 +323,7 @@ void MainWindow::run()
 {
     status = RUN;
     isDebugMode = false;
-    ui->debugButton->setEnabled(true);
+    ui->debugButton->setText("DEBUG");
     ui->stepButton->setEnabled(false);
     ui->resultBrowser->clear();
     ui->treeBrowser->clear();
@@ -324,7 +360,7 @@ void MainWindow::runCode()
         else
         {
             status = WAIT_FOR_INPUT;
-            ui->resultBrowser->setPlainText("[Ask for input]");
+            ui->resultBrowser->append("\n[Ask for input]");
         }
     }
     catch(QString err)
@@ -332,7 +368,6 @@ void MainWindow::runCode()
         ui->resultBrowser->setPlainText(err);
         status = INPUT;
         ui->inputEdit->setFocus();
-        return;
     }
     updateContextBrowser();
     inputOfProgram.clear();
@@ -351,7 +386,6 @@ void MainWindow::runSingle(QString &cmd)
     try
     {
         program->parseStatements(singleCmd);
-        highLightWrong();
         program->initialize();
         runSingleCode();
     }
@@ -378,7 +412,7 @@ void MainWindow::runSingleCode()
         else
         {
             status = WAIT_FOR_INPUT;
-            ui->resultBrowser->setPlainText("[Ask for input]");
+            ui->resultBrowser->append("\n[Ask for input]");
         }
     }
     catch(QString)
