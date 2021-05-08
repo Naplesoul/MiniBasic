@@ -86,7 +86,20 @@ bool PrintStmt::run(EvaluationContext &evaluationContext, int &, QString &, QStr
 bool PrintfStmt::parse(const QString &code)
 {
     QString input = code.trimmed();
-    int stringEnd = findChar(input, ',');
+    int codeLength = code.length();
+    int stringEnd = codeLength;
+    int quotationNum = 0;
+    for (int i = 0; i < codeLength; ++i) {
+        if ((code[i] == '\"' || code[i] == '\'') && ++quotationNum == 2) {
+            for (; i < codeLength; ++i) {
+                if (code[i] == ',') {
+                    stringEnd = i;
+                    break;
+                }
+            }
+            break;
+        }
+    }
     QString formatText = input.left(stringEnd).trimmed();
     int length = formatText.length();
     if ((formatText[0] == '\'' && formatText[length - 1] == '\'') || (formatText[0] == '\"' && formatText[length - 1] == '\"')) {
@@ -122,19 +135,19 @@ bool PrintfStmt::parse(const QString &code)
             }
             commentPos = findChar(input, ',');
         }
-        if (input.isEmpty())
-            throw QString("[Invalid input in line ");
-        length = input.length();
-        if ((input[0] == '\'' && input[length - 1] == '\'') || (input[0] == '\"' && input[length - 1] == '\"')) {
-            input = input.mid(1, length - 2);
-            length -= 2;
-            for (int  i = 0; i < length; ++i) {
-                if (input[i] == '\'' || input[i] == '\"')
-                    throw QString("[Invalid string in line ");
+        if (!input.isEmpty()) {
+            length = input.length();
+            if ((input[0] == '\'' && input[length - 1] == '\'') || (input[0] == '\"' && input[length - 1] == '\"')) {
+                input = input.mid(1, length - 2);
+                length -= 2;
+                for (int  i = 0; i < length; ++i) {
+                    if (input[i] == '\'' || input[i] == '\"')
+                        throw QString("[Invalid string in line ");
+                }
+                contents.push_back(new FormatContent(true, input));
+            } else {
+                contents.push_back(new FormatContent(false, input));
             }
-            contents.push_back(new FormatContent(true, input));
-        } else {
-            contents.push_back(new FormatContent(false, input));
         }
     }
     catch(QString err)
