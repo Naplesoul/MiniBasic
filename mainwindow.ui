@@ -107,7 +107,7 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">font: 81 11pt &quot;JetBrains Mono ExtraBold&quot;;</string>
+     <string notr="true">font: 81 9pt &quot;JetBrains Mono ExtraBold&quot;;</string>
     </property>
    </widget>
    <widget class="QLabel" name="codeLabel">

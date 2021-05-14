@@ -361,6 +361,7 @@ void MainWindow::runCode()
         else
         {
             status = WAIT_FOR_INPUT;
+            ui->resultBrowser->setPlainText(outputOfProgram);
             ui->resultBrowser->append("\n[Ask for input]");
         }
     }
